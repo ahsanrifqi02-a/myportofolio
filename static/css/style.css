@@ -179,6 +179,34 @@ span.h1 {
     animation: typing 1.0s steps(20, end) 4.4s forwards, blink-caret 0.6s step-end 7 4.4s;
 }
 
+/* --- Profile Photo --- */
+.profile-photo {
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    margin: 3rem auto 3rem auto;
+}
+
+.avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 10px double var(--text-muted);
+    position: relative;
+    z-index: 1;
+}
+
+.photo-block {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 100%;
+    height: 100%;
+    border-radius: 10%;
+    z-index: 0;
+}
+
 /* --- Bio Section --- */
 .bio {
     color: var(--paper);
@@ -189,11 +217,112 @@ span.h1 {
     opacity: 0.92;
 }
 
-.skills {
+/* Experience Cards */
+.experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.experience-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(227, 217, 201, 0.15);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.experience-card:hover {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+.exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.exp-role {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+.exp-org {
+    font-size: 0.95rem;
+    color: var(--paper);
+    margin-top: 0.2rem;
+}
+
+.exp-location {
+    color: var(--accent);
+}
+
+.exp-period {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--paper);
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius);
+    white-space: nowrap;
+}
+
+.exp-desc {
+    font-size: 0.95rem;
+    color: var(--paper);
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+}
+
+/* --- Experience Bullets --- */
+.exp-bullets {
+    list-style: none; /* Remove default discs */
+    padding-left: 0;
+    margin-top: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--paper);
+    opacity: 0.9;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.exp-bullets li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.exp-bullets li::before {
+    content: "▹"; /* Cool custom arrow/bullet */
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    font-size: 1.1em;
+}
+.exp-bullets strong {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.exp-middot {
+    color: var(--accent);
+    margin: 0 0.5rem;
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+
+/* .skills {
     color: var(--paper);
     max-width: 2000px;
     font-weight: 700;
-}
+} */
 
 .meta-list {
     display: flex;
@@ -301,33 +430,5 @@ html {
     .social-links {
         justify-content: flex-start;
     }
-}
-
-/* --- Profile Photo --- */
-.profile-photo {
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-    margin: 3rem auto 3rem auto;
-}
-
-.avatar {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 10px double var(--text-muted);
-    position: relative;
-    z-index: 1;
-}
-
-.photo-block {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 100%;
-    height: 100%;
-    border-radius: 10%;
-    z-index: 0;
 }
 
