@@ -13,7 +13,13 @@
     <header class="site-header">
         <div class="container">
             <a href="#home" class="brand">Profile</a>
-            <nav>
+            
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">
+                <span class="nav-icon"></span>
+            </label>
+
+            <nav class="nav-menu">
                 <a href="#home">Home</a>
                 <a href="#about">About</a>
                 <a href="#experience">Experience</a>
@@ -77,11 +83,11 @@
                 <div class="section-header">
                     <h2 class="section-title">About Me</h2>
                 </div>
-                <div class="profile-photo scroll-reveal">
+                <div class="profile-photo ">
                     <div class="photo-block"></div>
                     <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
                 </div>
-                <div class="about-content scroll-reveal">
+                <div class="about-content">
                     <div class="bio" style="text-align: center; max-width: 800px; margin: 0 auto;">
                         <p class="bio-line">I am an Undergraduate Information Systems student at Universitas Indonesia passionate about the intersection of technology and business strategy. I specialize in turning complex data into actionable insights that drive smart, strategic decisions.</p>
                     </div>
@@ -96,7 +102,7 @@
                 </div>
                 <div class="experience-list">
                     <!-- Experience Item 1 -->
-                    <article class="experience-card scroll-reveal">
+                    <article class="experience-card">
                         <div class="exp-header">
                             <div>
                                 <h3 class="exp-role">Mentor of Dasar-Dasar Pemrograman 0</h3>
@@ -116,7 +122,7 @@
                     </article>
 
                     <!-- Experience Item 2-->
-                    <article class="experience-card scroll-reveal">
+                    <article class="experience-card">
                         <div class="exp-header">
                             <div>
                                 <h3 class="exp-role">Mentor of Open House Fasilkom UI 2025</h3>
@@ -145,7 +151,7 @@
                 </div>
                 <div class="skills-grid">
                     <!-- Category 1: Programming Languages -->
-                    <div class="skill-card scroll-reveal">
+                    <div class="skill-card">
                         <div class="skill-card-header">
                             <span class="skill-badge">&lt;/&gt;</span>
                             <h3>Programming Languages</h3>
@@ -159,7 +165,7 @@
                     </div>
 
                     <!-- Category 2: Frameworks & Libraries -->
-                    <div class="skill-card scroll-reveal">
+                    <div class="skill-card">
                         <div class="skill-card-header">
                             <span class="skill-badge">&boxplus;</span>
                             <h3>Frameworks & Web Tech</h3>
@@ -171,7 +177,7 @@
                     </div>
 
                     <!-- Category 3: Tools & Data -->
-                    <div class="skill-card scroll-reveal">
+                    <div class="skill-card ">
                         <div class="skill-card-header">
                             <span class="skill-badge">&#9881;</span>
                             <h3>Tools & Data Management</h3>
@@ -186,10 +192,27 @@
                 </div>
             </div>
         </section>
+        <!-- Contacts Section -->
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Contact</h2>
+                </div>
+                
+                <div class="contact-content " style="text-align: left; max-width: 600px;">
+                    <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--paper); opacity: 0.85;">Open for new opportunities and collaboration. Feel free to reach out via my email or social networks below.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap;">
+                        <a href="https://github.com/ahsanrifqi02-a" class="btn-link" target="_blank" rel="noopener">GitHub</a>
+                        <a href="https://www.linkedin.com/in/ahsan-rifqi-prasetyo-828022380/" class="btn-link" target="_blank" rel="noopener">LinkedIn</a>
+                        <a href="mailto:ahsanrifqi02@gmail.com" class="btn-link secondary">Email Me</a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="site-footer">
-        <div class="container">
+        <div class="container" style="text-align: left;">
             <p>&copy; 2026 Ahsan Rifqi Prasetyo. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>

@@ -1,7 +1,6 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 :root {
@@ -12,6 +11,7 @@
     --line: #e3d9c9;
     --text-muted: #6b6459;
     --radius: 4px;
+    --container-width: 1200px; /* Adjust this to make the website wider or narrower */
 }
 
 body {
@@ -27,7 +27,7 @@ h1, h2, .brand {
 }
 
 .container {
-    max-width: 960px;
+    max-width: var(--container-width);
     margin: 0 auto;
     padding: 0 1.5rem;
 }
@@ -37,6 +37,9 @@ h1, h2, .brand {
 .site-header {
     border-bottom: 1px solid var(--line);
     font: italic;
+    position: relative;
+    background-color: var(--ink); /* Ensure it covers anything underneath if scrolled */
+    z-index: 100;
 }
 
 .site-header .container {
@@ -54,12 +57,39 @@ h1, h2, .brand {
     letter-spacing: -0.01em;
 }
 
-.site-header nav {
+.menu-toggle {
+    display: none;
+}
+.menu-icon {
+    display: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.nav-icon {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--paper);
+    position: relative;
+    transition: background 0.2s ease-out;
+}
+.nav-icon::before, .nav-icon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+    transition: all 0.2s ease-out;
+}
+.nav-icon::before { top: -8px; }
+.nav-icon::after { top: 8px; }
+
+.site-header .nav-menu {
     display: flex;
     gap: 2rem;
 }
 
-.site-header nav a {
+.site-header .nav-menu a {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 500;
     color: var(--paper);
@@ -68,8 +98,47 @@ h1, h2, .brand {
     transition: color 0.2s ease;
 }
 
-.site-header nav a:hover {
+.site-header .nav-menu a:hover {
     color: var(--accent-dark);
+}
+
+/* Menggunakan bantuan AI untuk implementasi menu-bar yang dapat berubah secara dynamic ketika screen widthnya mencapai threshold tertentu */
+
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block;
+    }
+    
+    .site-header .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--ink);
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--line);
+        gap: 1.5rem;
+        z-index: 99;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .menu-toggle:checked ~ .menu-icon .nav-icon {
+        background: transparent;
+    }
+    .menu-toggle:checked ~ .menu-icon .nav-icon::before {
+        transform: rotate(-45deg);
+        top: 0;
+    }
+    .menu-toggle:checked ~ .menu-icon .nav-icon::after {
+        transform: rotate(45deg);
+        top: 0;
+    }
 }
 
 /* Section Hero dengan CSS Grid */
@@ -478,6 +547,17 @@ html {
     transform: translateY(-1px);
 }
 
+.btn-link.secondary {
+    color: var(--paper);
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(227, 217, 201, 0.2);
+}
+
+.btn-link.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--paper);
+}
+
 /* Footer & Responsive */
 .site-footer {
     padding: 1.5rem 1.5rem;
@@ -503,5 +583,12 @@ html {
     .social-links {
         justify-content: flex-start;
     }
-}
+    .exp-header {
+        flex-direction: column;
+    }
 
+    .skills-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
