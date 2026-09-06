@@ -317,12 +317,85 @@ span.h1 {
     vertical-align: middle;
 }
 
+/* Skills Section */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
 
-/* .skills {
-    color: var(--paper);
-    max-width: 2000px;
+.skill-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(227, 217, 201, 0.15);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.skill-card:hover {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+}
+
+.skill-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.skill-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
     font-weight: 700;
-} */
+    color: var(--ink);
+    background-color: var(--accent);
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+}
+
+.skill-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+.skill-summary {
+    font-size: 0.85rem;
+    color: var(--paper);
+    opacity: 0.75;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.skill-chip {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--paper);
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(227, 217, 201, 0.12);
+    border-radius: var(--radius);
+    padding: 0.3rem 0.65rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.skill-chip:hover {
+    background-color: var(--accent);
+    color: var(--ink);
+    border-color: var(--accent);
+    font-weight: 600;
+}
 
 .meta-list {
     display: flex;
