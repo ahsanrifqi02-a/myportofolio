@@ -5,24 +5,25 @@
 }
 
 :root {
-    --ink: #1c1917;
+    --ink: #191817;
     --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
+    --accent: #09ccea;
+    --accent-dark: #017385;
     --line: #e3d9c9;
     --text-muted: #6b6459;
     --radius: 4px;
 }
 
 body {
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--ink);
-    background-color: var(--paper);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--paper);
+    background-color: var(--ink);
     line-height: 1.6;
 }
 
-h1, .brand {
-    font-family: "Space Grotesk", -apple-system, sans-serif;
+h1, h2, .brand {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    letter-spacing: -0.01em;
 }
 
 .container {
@@ -35,6 +36,7 @@ h1, .brand {
 
 .site-header {
     border-bottom: 1px solid var(--line);
+    font: italic;
 }
 
 .site-header .container {
@@ -47,8 +49,9 @@ h1, .brand {
 .brand {
     font-size: 1.3rem;
     font-weight: 700;
-    color: var(--ink);
+    color: var(--paper);
     text-decoration: none;
+    letter-spacing: -0.01em;
 }
 
 .site-header nav {
@@ -57,129 +60,229 @@ h1, .brand {
 }
 
 .site-header nav a {
-    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    color: var(--paper);
     text-decoration: none;
     font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.site-header nav a:hover {
+    color: var(--accent-dark);
 }
 
 /* Section Hero dengan CSS Grid */
 
 .hero {
-    padding: 4.5rem 0 5rem;
+    padding: 8rem 0 5rem;
 }
 
 .hero-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    grid-template-areas:
-        "identity photo"
-        "details  photo";
-    gap: 1.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
 }
 
 .hero-identity {
-    grid-area: identity;
+    width: 100%;
 }
 
 .hero-details {
-    grid-area: details;
+    width: 100%;
+}
+
+/* Pure CSS Typewriter Animations */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: var(--accent); }
+    50% { border-color: transparent; }
+}
+
+/* --- Typing Animation Core --- */
+.typing-container {
+    position: relative;
+    display: inline-block;
+}
+
+.hidden-placeholder {
+    visibility: hidden;
+    display: inline-block;
+    pointer-events: none;
+}
+
+.typing-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    border-right: .005em solid transparent;
+}
+
+/* --- Kicker (Centered and Bigger) --- */
+.hero-kicker-wrapper {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .hero-kicker {
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(1.2rem, 4vw, 1.3rem); /* Bigger */
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--accent-dark);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.typing-text.hero-kicker {
+    animation: 
+        typing 1.2s steps(14, end) 0s forwards,
+        blink-caret 0.6s step-end 2 0s;
+}
+
+/* --- H1 Title --- */
+.h1-container {
+    display: inline-block;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+span.h1 {
+    font-size: clamp(1.2rem, 5vw, 4.5rem);
+    line-height: 1.25;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+    color: var(--paper);
 }
 
-.hero-identity h1 {
-    font-size: clamp(3rem, 7vw, 5rem);
-    line-height: 0.95;
+.typing-text.h1 {
+    animation: 
+        typing 1.5s steps(22, end) 1.8s forwards,
+        blink-caret 0.5s step-end 3 2s;
 }
 
+/* --- Meta Details --- */
+.meta-text-1 {
+    animation: typing 0.7s steps(10, end) 3.5s forwards, blink-caret 0.35s step-end 2 3.5s;
+}
+.meta-text-2 {
+    animation: typing 1.0s steps(20, end) 4.4s forwards, blink-caret 0.6s step-end 7 4.4s;
+}
+
+/* --- Bio Section --- */
 .bio {
-    color: var(--text-muted);
-    max-width: 480px;
+    color: var(--paper);
+    max-width: 600px;
     margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    opacity: 0.92;
+}
+
+.skills {
+    color: var(--paper);
+    max-width: 2000px;
+    font-weight: 700;
 }
 
 .meta-list {
     display: flex;
+    justify-content: center;
     gap: 2rem;
     margin-bottom: 1.5rem;
 }
 
 .meta-row dt {
+    font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--text-muted);
+    color: var(--paper);
+    opacity: 0.75;
     margin-bottom: 0.15rem;
 }
 
 .meta-row dd {
+    font-family: 'Fira Code', monospace;
     font-weight: 600;
 }
 
-.social-links {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+html {
+    scroll-behavior: smooth;
 }
 
-.social-link {
-    display: inline-block;
+/* Sections Common Layout */
+.section {
+    padding: 4.5rem 0 5.5rem;
+    border-top: 1px solid rgba(227, 217, 201, 0.15);
+}
+
+.section-header {
+    margin-bottom: 2.5rem;
+}
+
+.section-kicker {
+    font-family: 'Fira Code', monospace;
     font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+/* Universal Scroll-Driven Animation */
+@keyframes scroll-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.btn-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
-    color: var(--paper);
-    background-color: var(--ink);
-    border-radius: var(--radius);
-    padding: 0.5rem 1.1rem;
-    transition: background-color 0.2s ease;
-}
-
-.social-link:hover {
+    color: var(--ink);
     background-color: var(--accent);
-}
-
-.hero-photo {
-    grid-area: photo;
-    align-self: center;
-    position: relative;
-}
-
-.photo-block {
-    position: absolute;
-    top: 1.25rem;
-    left: 1.25rem;
-    width: 100%;
-    height: 100%;
-    background-color: var(--accent);
+    padding: 0.4rem 0.85rem;
     border-radius: var(--radius);
-    z-index: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.avatar {
-    position: relative;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: var(--radius);
-    border: 3px solid var(--ink);
+.btn-link:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 /* Footer & Responsive */
-
 .site-footer {
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem;
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--line);
+    text-align: center;
 }
 
 @media (max-width: 600px) {
@@ -199,3 +302,32 @@ h1, .brand {
         justify-content: flex-start;
     }
 }
+
+/* --- Profile Photo --- */
+.profile-photo {
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    margin: 3rem auto 3rem auto;
+}
+
+.avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 10px double var(--text-muted);
+    position: relative;
+    z-index: 1;
+}
+
+.photo-block {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 100%;
+    height: 100%;
+    border-radius: 10%;
+    z-index: 0;
+}
+

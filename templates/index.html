@@ -6,55 +6,95 @@
     <title>Ahsan - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="#profile" class="brand">Ahsan</a>
+            <a href="#home" class="brand">Profile</a>
             <nav>
-                <a href="#profile">Profile</a>
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#experience">Experience</a>
+                <a href="#skills">Skills</a>
+                <a href="#contact">Contact</a>
             </nav>
         </div>
     </header>
 
     <main>
-        <section class="hero" id="profile">
+        <!-- Home / Hero Section -->
+        <section class="hero" id="home">
             <div class="container hero-grid">
                 <div class="hero-identity">
-                    <p class="hero-kicker">Information Systems &middot; Universitas Indonesia</p>
-                    <h1>Ahsan Rifqi Prasetyo</h1>
-                </div>
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
+                    <div class="hero-kicker-wrapper">
+                        <div>
+                            <div class="typing-container kicker-container" style="text-align: left;">
+                                <span class="hidden-placeholder hero-kicker">Web Portofolio</span>
+                                <span class="typing-text hero-kicker">Web Portofolio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h1 class="typing-container h1-container">
+                            <span class="hidden-placeholder h1">Ahsan Rifqi Prasetyo</span>
+                            <span class="typing-text h1">Ahsan Rifqi Prasetyo</span>
+                        </h1>
+                    </div>
                 </div>
                 <div class="hero-details">
-                    <p class="bio">I am an Information Systems student at Universitas Indonesia passionate about the intersection of technology and business strategy. I specialize in turning complex data into actionable insights that drive smart, strategic decisions.</p>
+                    
                     <dl class="meta-list">
                         <div class="meta-row">
                             <dt>NPM</dt>
-                            <dd>2506624266</dd>
+                            <dd>
+                                <div class="typing-container meta-container">
+                                    <span class="hidden-placeholder">2506624266</span>
+                                    <span class="typing-text meta-text-1">2506624266</span>
+                                </div>
+                            </dd>
                         </div>
                         <div class="meta-row">
                             <dt>Program</dt>
-                            <dd>S1 Sistem Informasi</dd>
+                            <dd>
+                                <div class="typing-container meta-container">
+                                    <span class="hidden-placeholder">S1 Sistem Informasi</span>
+                                    <span class="typing-text meta-text-2">S1 Sistem Informasi</span>
+                                </div>
+                            </dd>
                         </div>
                     </dl>
-                    <div class="social-links">
-                        <a href="https://github.com/ahsanrifqi02-a" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/ahsan-rifqi-prasetyo-828022380/" class="social-link">LinkedIn</a>
-                        <a href="mailto:ahsanrifqi02@gmail.com" class="social-link">Email</a>
+                    
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- About Section -->
+        <section class="section" id="about">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">About Me</h2>
+                </div>
+                <div class="profile-photo scroll-reveal">
+                    <div class="photo-block"></div>
+                    <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
+                </div>
+                <div class="about-content scroll-reveal">
+                    <div class="bio" style="text-align: center; max-width: 800px; margin: 0 auto;">
+                        <p class="bio-line">I am an Information Systems student at Universitas Indonesia passionate about the intersection of technology and business strategy. I specialize in turning complex data into actionable insights that drive smart, strategic decisions.</p>
                     </div>
                 </div>
             </div>
         </section>
+        <!-- Experience Section (soon) -->
+        
     </main>
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Ahsan. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <p>&copy; 2026 Ahsan Rifqi Prasetyo. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>
