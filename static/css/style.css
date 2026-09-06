@@ -256,6 +256,18 @@ span.h1 {
     margin: 3rem auto 3rem auto;
 }
 
+@media (min-width: 768px) {
+    .profile-photo {
+        float: right;
+        max-width: 360px;
+        margin: 0 3rem 1.5rem 0;
+    }
+    
+    #about .container {
+        overflow: hidden; 
+    }
+}
+
 .avatar {
     width: 100%;
     aspect-ratio: 1 / 1;
