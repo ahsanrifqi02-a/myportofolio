@@ -8,7 +8,7 @@
     --paper: #faf6f0;
     --accent: #09ccea;
     --accent-dark: #017385;
-    --line: #e3d9c9;
+    --line: #7b7468;
     --text-muted: #6b6459;
     --radius: 4px;
     --container-width: 1200px; /* Adjust this to make the website wider or narrower */
@@ -38,7 +38,7 @@ h1, h2, .brand {
     border-bottom: 1px solid var(--line);
     font: italic;
     position: relative;
-    background-color: var(--ink); /* Ensure it covers anything underneath if scrolled */
+    background-color: var(--ink);
     z-index: 100;
 }
 
@@ -71,7 +71,7 @@ h1, h2, .brand {
     height: 2px;
     background: var(--paper);
     position: relative;
-    transition: background 0.2s ease-out;
+    transition: background-color 0.2s ease-out;
 }
 .nav-icon::before, .nav-icon::after {
     content: '';
@@ -102,7 +102,7 @@ h1, h2, .brand {
     color: var(--accent-dark);
 }
 
-/* Menggunakan bantuan AI untuk implementasi menu-bar yang dapat berubah secara dynamic ketika screen widthnya mencapai threshold tertentu */
+/* Menggunakan bantuan AI untuk implementasi menu-bar yang dapat berubah secara responsive ketika screen widthnya mencapai threshold tertentu */
 
 @media (max-width: 768px) {
     .menu-icon {
@@ -164,6 +164,7 @@ h1, h2, .brand {
 }
 
 /* Pure CSS Typewriter Animations */
+/* Menggunakan bantuan AI untuk implementasi fitur typing animation */
 @keyframes typing {
     from { width: 0; }
     to { width: 100%; }
@@ -205,7 +206,7 @@ h1, h2, .brand {
 
 .hero-kicker {
     font-family: 'Fira Code', monospace;
-    font-size: clamp(1.2rem, 4vw, 1.3rem); /* Bigger */
+    font-size: clamp(1.2rem, 4vw, 1.3rem);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--accent);
@@ -245,7 +246,7 @@ span.h1 {
     animation: typing 0.7s steps(10, end) 3.5s forwards, blink-caret 0.35s step-end 2 3.5s;
 }
 .meta-text-2 {
-    animation: typing 1.0s steps(20, end) 4.4s forwards, blink-caret 0.6s step-end 7 4.4s;
+    animation: typing 1.0s steps(20, end) 4.4s forwards, blink-caret 0.6s step-end infinite 4.4s;
 }
 
 /* --- Profile Photo --- */
@@ -256,11 +257,12 @@ span.h1 {
     margin: 3rem auto 3rem auto;
 }
 
+/* Menggunakan bantuan AI untuk media-query */
 @media (min-width: 768px) {
     .profile-photo {
         float: right;
-        max-width: 360px;
-        margin: 0 3rem 1.5rem 0;
+        max-width: 320px;
+        margin: 0 2rem 1.5rem 1.5rem;
     }
     
     #about .container {
@@ -272,19 +274,19 @@ span.h1 {
     width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: var(--radius);
     border: 10px double var(--text-muted);
     position: relative;
     z-index: 1;
 }
 
 .photo-block {
-    position: absolute;
+    position: relative;
     top: 15px;
     left: 15px;
     width: 100%;
     height: 100%;
-    border-radius: 10%;
+    border-radius: var(--radius);
     z-index: 0;
 }
 
@@ -296,6 +298,10 @@ span.h1 {
     font-size: 1.05rem;
     line-height: 1.7;
     opacity: 0.92;
+}
+
+.bio-line {
+    max-width: 100%; 
 }
 
 /* Experience Cards */
@@ -363,8 +369,9 @@ span.h1 {
 }
 
 /* --- Experience Bullets --- */
+/* Menggunakan AI untuk saran struktur experience bullet */
 .exp-bullets {
-    list-style: none; /* Remove default discs */
+    list-style: none; 
     padding-left: 0;
     margin-top: 1rem;
     margin-bottom: 0.8rem;
@@ -379,7 +386,7 @@ span.h1 {
     margin-bottom: 0.75rem;
 }
 .exp-bullets li::before {
-    content: "▹"; /* Cool custom arrow/bullet */
+    content: "▹"; 
     color: var(--accent);
     position: absolute;
     left: 0;
@@ -604,3 +611,4 @@ html {
         grid-template-columns: 1fr;
     }
 }
+
