@@ -6,46 +6,221 @@
     <title>Ahsan - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="#profile" class="brand">Ahsan</a>
-            <nav>
-                <a href="#profile">Profile</a>
+            <a href="#home" class="brand">Profile</a>
+            
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="menu-icon">
+                <span class="nav-icon"></span>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#experience">Experience</a>
+                <a href="#skills">Skills</a>
+                <a href="#contact">Contact</a>
             </nav>
         </div>
     </header>
 
     <main>
-        <section class="hero" id="profile">
+        <!-- Home / Hero Section -->
+        <section class="hero" id="home">
             <div class="container hero-grid">
                 <div class="hero-identity">
-                    <p class="hero-kicker">Information Systems &middot; Universitas Indonesia</p>
-                    <h1>Ahsan Rifqi Prasetyo</h1>
-                </div>
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
+                    <div class="hero-kicker-wrapper">
+                        <div>
+                            <div class="typing-container kicker-container" style="text-align: left;">
+                                <span class="hidden-placeholder hero-kicker">Web Portofolio</span>
+                                <span class="typing-text hero-kicker">Web Portofolio</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <h1 class="typing-container h1-container">
+                            <span class="hidden-placeholder h1">Ahsan Rifqi Prasetyo</span>
+                            <span class="typing-text h1">Ahsan Rifqi Prasetyo</span>
+                        </h1>
+                    </div>
                 </div>
                 <div class="hero-details">
-                    <p class="bio">I am an Information Systems student at Universitas Indonesia passionate about the intersection of technology and business strategy. I specialize in turning complex data into actionable insights that drive smart, strategic decisions.</p>
+                    
                     <dl class="meta-list">
                         <div class="meta-row">
                             <dt>NPM</dt>
-                            <dd>2506624266</dd>
+                            <dd>
+                                <div class="typing-container meta-container">
+                                    <span class="hidden-placeholder">2506624266</span>
+                                    <span class="typing-text meta-text-1">2506624266</span>
+                                </div>
+                            </dd>
                         </div>
                         <div class="meta-row">
                             <dt>Program</dt>
-                            <dd>S1 Sistem Informasi</dd>
+                            <dd>
+                                <div class="typing-container meta-container">
+                                    <span class="hidden-placeholder">S1 Sistem Informasi</span>
+                                    <span class="typing-text meta-text-2">S1 Sistem Informasi</span>
+                                </div>
+                            </dd>
                         </div>
                     </dl>
-                    <div class="social-links">
-                        <a href="https://github.com/ahsanrifqi02-a" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/ahsan-rifqi-prasetyo-828022380/" class="social-link">LinkedIn</a>
-                        <a href="mailto:ahsanrifqi02@gmail.com" class="social-link">Email</a>
+                    
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- About Section -->
+        <section class="section" id="about">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">About Me</h2>
+                </div>
+                <div class="profile-photo ">
+                    <div class="photo-block"></div>
+                    <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
+                </div>
+                <div class="about-content">
+                    <div class="bio" style="text-align: left; max-width: 100%; margin: 0;">
+                        <p class="bio-line">An Information Systems undergraduate at Universitas Indonesia bridging software engineering, data architecture, and business strategy. I specialize in transforming complex data infrastructure into scalable digital solutions and actionable intelligence that streamline operations and accelerate decision-making.</p>
+                        <ul class="exp-bullets" style="margin-top: 1.5rem;">
+                            <li><strong>Problem Solver:</strong> Passionate about tackling complex technical challenges with clean, efficient code.</li>
+                            <li><strong>Data-Driven:</strong> Adept at analyzing metrics to guide software architecture and business strategy.</li>
+                            <li><strong>Continuous Learner:</strong> Always exploring new frameworks, languages, and methodologies to stay on the cutting edge.</li>
+                            <li><strong>Focus:</strong> Data Science and IT Business</li>
+                            <li><strong>Based in:</strong> Jakarta, Indonesia</li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Experience Section -->
+        <section class="section" id="experience">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Experience</h2>
+                </div>
+                <div class="experience-list">
+                    <!-- Experience Item 1 -->
+                    <article class="experience-card">
+                        <div class="exp-header">
+                            <div>
+                                <h3 class="exp-role">Mentor of Dasar-Dasar Pemrograman 0</h3>
+                                <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia </span> <span class="exp-location">@Depok, Jawa Barat</span></p>
+                            </div>
+                            <span class="exp-period">Jul 2026 &ndash; Aug 2026 </span>
+                        </div>
+                        <div class="exp-body">
+                            <p class="exp-desc">
+                                Mentored incoming freshmen transitioning into university-level computer science, helping them build practical programming literacy from scratch.
+                            </p>
+                            <ul class="exp-bullets">
+                                <li><strong>Core Instruction:</strong> Facilitated weekly lab sessions covering procedural programming, data structures (lists, dictionaries, sets), recursion, and basic algorithmic thinking.</li>
+                                <li><strong>Hands-On Mentorship:</strong> Provided live, step-by-step code reviews and debugging support, teaching students how to read tracebacks and approach syntax and logic errors systematically.</li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <!-- Experience Item 2-->
+                    <article class="experience-card">
+                        <div class="exp-header">
+                            <div>
+                                <h3 class="exp-role">Mentor of Open House Fasilkom UI 2025</h3>
+                                <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia </span> <span class="exp-location">@Depok, Jawa Barat</span></p>
+                            </div>
+                            <span class="exp-period">Nov 2025</span>
+                        </div>
+                        <div class="exp-body">
+                            <p class="exp-desc">
+                                Introduced high school students to foundational computer science and computational thinking. Focused on demystifying core programming logic through hands-on mini-projects, interactive debugging, and relatable real-world analogies to inspire interest in software engineering and STEM pathways.
+                            </p>
+                            <ul class="exp-bullets">
+                                <li><strong>Fundamental Concepts:</strong> Taught computational thinking, variables, conditional statements, and loops using interactive, visual coding exercises.</li>
+                                <li><strong>Practical Application:</strong> Guided students through building simple terminal programs and text-based games, reinforcing logic design and creative problem-solving.</li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        <!-- Skills Section -->
+        <section class="section" id="skills">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Skills & Expertise</h2>
+                </div>
+                <div class="skills-grid">
+                    <!-- Category 1: Programming Languages -->
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <span class="skill-badge">&lt;/&gt;</span>
+                            <h3>Programming Languages</h3>
+                        </div>
+                        <p class="skill-summary">Core languages used for frontend, software development, and algorithms.</p>
+                        <div class="skill-chips">
+                            <span class="skill-chip">Python</span>
+                            <span class="skill-chip">Java</span>
+                            <span class="skill-chip">HTML5 & CSS3</span>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: Frameworks & Libraries -->
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <span class="skill-badge">&boxplus;</span>
+                            <h3>Frameworks & Web Tech</h3>
+                        </div>
+                        <p class="skill-summary">Modern stacks and libraries used to build scalable web platforms.</p>
+                        <div class="skill-chips">
+                            <span class="skill-chip">Django</span>
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Tools & Data -->
+                    <div class="skill-card ">
+                        <div class="skill-card-header">
+                            <span class="skill-badge">&#9881;</span>
+                            <h3>Tools & Data Management</h3>
+                        </div>
+                        <p class="skill-summary">Developer tooling, database systems, and version control workflows.</p>
+                        <div class="skill-chips">
+                            <span class="skill-chip">Git & GitHub</span>
+                            <span class="skill-chip">VS Code</span>
+                            <span class="skill-chip">Figma</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Contacts Section -->
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Contact</h2>
+                </div>
+                
+                <div class="contact-content " style="text-align: left; max-width: 600px;">
+                    <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--paper); opacity: 0.85;">Open for new opportunities and collaboration. Feel free to reach out via my email or social networks below.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap;">
+                        <a href="https://github.com/ahsanrifqi02-a" class="btn-link" style="display: inline-flex; align-items: center; gap: 0.5rem;" target="_blank" rel="noopener">
+                            <img src="/static/img/github.svg" alt="GitHub" width="16" height="16" style="filter: brightness(0);">
+                            GitHub
+                        </a>
+                        <a href="https://www.linkedin.com/in/ahsan-rifqi-prasetyo-828022380/" class="btn-link" style="display: inline-flex; align-items: center; gap: 0.5rem;" target="_blank" rel="noopener">
+                            <img src="/static/img/linkedin.svg" alt="LinkedIn" width="16" height="16" style="filter: brightness(0);">
+                            LinkedIn
+                        </a>
+                        <a href="mailto:ahsanrifqi02@gmail.com" class="btn-link secondary">
+                            Email Me
+                        </a>
                     </div>
                 </div>
             </div>
@@ -53,8 +228,8 @@
     </main>
 
     <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Ahsan. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+        <div class="container" style="text-align: left;">
+            <p>&copy; 2026 Ahsan Rifqi Prasetyo. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>

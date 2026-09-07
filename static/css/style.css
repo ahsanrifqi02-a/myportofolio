@@ -1,32 +1,33 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 :root {
-    --ink: #1c1917;
+    --ink: #191817;
     --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
-    --line: #e3d9c9;
+    --accent: #09ccea;
+    --accent-dark: #017385;
+    --line: #7b7468;
     --text-muted: #6b6459;
     --radius: 4px;
+    --container-width: 1200px; /* Adjust this to make the website wider or narrower */
 }
 
 body {
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--ink);
-    background-color: var(--paper);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--paper);
+    background-color: var(--ink);
     line-height: 1.6;
 }
 
-h1, .brand {
-    font-family: "Space Grotesk", -apple-system, sans-serif;
+h1, h2, .brand {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    letter-spacing: -0.01em;
 }
 
 .container {
-    max-width: 960px;
+    max-width: var(--container-width);
     margin: 0 auto;
     padding: 0 1.5rem;
 }
@@ -35,6 +36,10 @@ h1, .brand {
 
 .site-header {
     border-bottom: 1px solid var(--line);
+    font: italic;
+    position: relative;
+    background-color: var(--ink);
+    z-index: 100;
 }
 
 .site-header .container {
@@ -47,139 +52,526 @@ h1, .brand {
 .brand {
     font-size: 1.3rem;
     font-weight: 700;
-    color: var(--ink);
+    color: var(--paper);
     text-decoration: none;
+    letter-spacing: -0.01em;
 }
 
-.site-header nav {
+.menu-toggle {
+    display: none;
+}
+.menu-icon {
+    display: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.nav-icon {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--paper);
+    position: relative;
+    transition: background 0.2s ease-out;
+}
+.nav-icon::before, .nav-icon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--paper);
+    transition: all 0.2s ease-out;
+}
+.nav-icon::before { top: -8px; }
+.nav-icon::after { top: 8px; }
+
+.site-header .nav-menu {
     display: flex;
     gap: 2rem;
 }
 
-.site-header nav a {
-    color: var(--ink);
+.site-header .nav-menu a {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    color: var(--paper);
     text-decoration: none;
     font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.site-header .nav-menu a:hover {
+    color: var(--accent-dark);
+}
+
+/* Menggunakan bantuan AI untuk implementasi menu-bar yang dapat berubah secara responsive ketika screen widthnya mencapai threshold tertentu */
+
+@media (max-width: 768px) {
+    .menu-icon {
+        display: block;
+    }
+    
+    .site-header .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--ink);
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 0;
+        border-bottom: 1px solid var(--line);
+        gap: 1.5rem;
+        z-index: 99;
+    }
+
+    .menu-toggle:checked ~ .nav-menu {
+        display: flex;
+    }
+
+    .menu-toggle:checked ~ .menu-icon .nav-icon {
+        background: transparent;
+    }
+    .menu-toggle:checked ~ .menu-icon .nav-icon::before {
+        transform: rotate(-45deg);
+        top: 0;
+    }
+    .menu-toggle:checked ~ .menu-icon .nav-icon::after {
+        transform: rotate(45deg);
+        top: 0;
+    }
 }
 
 /* Section Hero dengan CSS Grid */
 
 .hero {
-    padding: 4.5rem 0 5rem;
+    padding: 8rem 0 5rem;
 }
 
 .hero-grid {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    grid-template-areas:
-        "identity photo"
-        "details  photo";
-    gap: 1.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
 }
 
 .hero-identity {
-    grid-area: identity;
+    width: 100%;
 }
 
 .hero-details {
-    grid-area: details;
+    width: 100%;
+}
+
+/* Pure CSS Typewriter Animations */
+/* Menggunakan bantuan AI untuk implementasi fitur typing animation */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: var(--accent); }
+    50% { border-color: transparent; }
+}
+
+/* --- Typing Animation Core --- */
+.typing-container {
+    position: relative;
+    display: inline-block;
+}
+
+.hidden-placeholder {
+    visibility: hidden;
+    display: inline-block;
+    pointer-events: none;
+}
+
+.typing-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    border-right: .005em solid transparent;
+}
+
+/* --- Kicker (Centered and Bigger) --- */
+.hero-kicker-wrapper {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .hero-kicker {
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(1.2rem, 4vw, 1.3rem);
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--accent-dark);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.typing-text.hero-kicker {
+    animation: 
+        typing 1.2s steps(14, end) 0s forwards,
+        blink-caret 0.6s step-end 2 0s;
+}
+
+/* --- H1 Title --- */
+.h1-container {
+    display: inline-block;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+span.h1 {
+    font-size: clamp(1.2rem, 5vw, 4.5rem);
+    line-height: 1.25;
     font-weight: 700;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+}
+
+.typing-text.h1 {
+    animation: 
+        typing 1.5s steps(22, end) 1.8s forwards,
+        blink-caret 0.5s step-end 3 2s;
+}
+
+/* --- Meta Details --- */
+.meta-text-1 {
+    animation: typing 0.7s steps(10, end) 3.5s forwards, blink-caret 0.35s step-end 2 3.5s;
+}
+.meta-text-2 {
+    animation: typing 1.0s steps(20, end) 4.4s forwards, blink-caret 0.6s step-end infinite 4.4s;
+}
+
+/* --- Profile Photo --- */
+.profile-photo {
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    margin: 3rem auto 3rem auto;
+}
+
+/* Menggunakan bantuan AI untuk media-query */
+@media (min-width: 768px) {
+    .profile-photo {
+        float: right;
+        max-width: 320px;
+        margin: 0 2rem 1.5rem 1.5rem;
+    }
+    
+    #about .container {
+        overflow: hidden; 
+    }
+}
+
+.avatar {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 10px double var(--text-muted);
+    position: relative;
+    z-index: 1;
+}
+
+.photo-block {
+    position: relative;
+    top: 15px;
+    left: 15px;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius);
+    z-index: 0;
+}
+
+/* --- Bio Section --- */
+.bio {
+    color: var(--paper);
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    opacity: 0.92;
+}
+
+.bio-line {
+    max-width: 100%; 
+}
+
+/* Experience Cards */
+.experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.experience-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(227, 217, 201, 0.15);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.experience-card:hover {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+.exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.exp-role {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+.exp-org {
+    font-size: 0.95rem;
+    color: var(--paper);
+    margin-top: 0.2rem;
+}
+
+.exp-location {
+    color: var(--accent);
+}
+
+.exp-period {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--paper);
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius);
+    white-space: nowrap;
+}
+
+.exp-desc {
+    font-size: 0.95rem;
+    color: var(--paper);
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+}
+
+/* --- Experience Bullets --- */
+/* Menggunakan AI untuk saran struktur experience bullet */
+.exp-bullets {
+    list-style: none; 
+    padding-left: 0;
+    margin-top: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--paper);
+    opacity: 0.9;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+.exp-bullets li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.exp-bullets li::before {
+    content: "▹"; 
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    font-size: 1.1em;
+}
+.exp-bullets strong {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.exp-middot {
+    color: var(--accent);
+    margin: 0 0.5rem;
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+/* Skills Section */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.skill-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(227, 217, 201, 0.15);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.skill-card:hover {
+    border-color: var(--accent);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+}
+
+.skill-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
 }
 
-.hero-identity h1 {
-    font-size: clamp(3rem, 7vw, 5rem);
-    line-height: 0.95;
+.skill-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    background-color: var(--accent);
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
 }
 
-.bio {
-    color: var(--text-muted);
-    max-width: 480px;
-    margin-bottom: 1.5rem;
+.skill-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+.skill-summary {
+    font-size: 0.85rem;
+    color: var(--paper);
+    opacity: 0.75;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.skill-chip {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--paper);
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(227, 217, 201, 0.12);
+    border-radius: var(--radius);
+    padding: 0.3rem 0.65rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.skill-chip:hover {
+    background-color: var(--accent);
+    color: var(--ink);
+    border-color: var(--accent);
+    font-weight: 600;
 }
 
 .meta-list {
     display: flex;
+    justify-content: center;
     gap: 2rem;
     margin-bottom: 1.5rem;
 }
 
 .meta-row dt {
+    font-family: 'Fira Code', monospace;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--text-muted);
+    color: var(--paper);
+    opacity: 0.75;
     margin-bottom: 0.15rem;
 }
 
 .meta-row dd {
+    font-family: 'Fira Code', monospace;
     font-weight: 600;
 }
 
-.social-links {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+html {
+    scroll-behavior: smooth;
 }
 
-.social-link {
-    display: inline-block;
+/* Sections Common Layout */
+.section {
+    padding: 4.5rem 0 5.5rem;
+    border-top: 1px solid rgba(227, 217, 201, 0.15);
+}
+
+.section-header {
+    margin-bottom: 2.5rem;
+}
+
+.section-kicker {
+    font-family: 'Fira Code', monospace;
     font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--paper);
+}
+
+.btn-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
+    color: var(--ink);
+    background-color: var(--accent);
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-link:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-link.secondary {
     color: var(--paper);
-    background-color: var(--ink);
-    border-radius: var(--radius);
-    padding: 0.5rem 1.1rem;
-    transition: background-color 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(227, 217, 201, 0.2);
 }
 
-.social-link:hover {
-    background-color: var(--accent);
-}
-
-.hero-photo {
-    grid-area: photo;
-    align-self: center;
-    position: relative;
-}
-
-.photo-block {
-    position: absolute;
-    top: 1.25rem;
-    left: 1.25rem;
-    width: 100%;
-    height: 100%;
-    background-color: var(--accent);
-    border-radius: var(--radius);
-    z-index: 0;
-}
-
-.avatar {
-    position: relative;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    border-radius: var(--radius);
-    border: 3px solid var(--ink);
+.btn-link.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--paper);
 }
 
 /* Footer & Responsive */
-
 .site-footer {
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem;
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--line);
+    text-align: center;
 }
 
 @media (max-width: 600px) {
@@ -198,4 +590,13 @@ h1, .brand {
     .social-links {
         justify-content: flex-start;
     }
+    .exp-header {
+        flex-direction: column;
+    }
+
+    .skills-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
 }
+
