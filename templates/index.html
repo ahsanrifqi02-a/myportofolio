@@ -12,7 +12,7 @@
 <body>
     <header class="site-header">
         <div class="container">
-            <a href="#home" class="brand">Profile</a>
+            <a href="{% url 'main:show_main' %}" class="brand">AHSAN</a>
             
             <input type="checkbox" id="menu-toggle" class="menu-toggle">
             <label for="menu-toggle" class="menu-icon">
@@ -20,9 +20,9 @@
             </label>
 
             <nav class="nav-menu">
-                <a href="#home">Home</a>
+                <a href="{% url 'main:show_main' %}">Home</a>
                 <a href="#about">About</a>
-                <a href="#experience">Experience</a>
+                <a href="{% url 'main:show_experience' %}">Experience</a>
                 <a href="#skills">Skills</a>
                 <a href="#contact">Contact</a>
             </nav>
@@ -44,8 +44,8 @@
                     </div>
                     <div style="text-align: center;">
                         <h1 class="typing-container h1-container">
-                            <span class="hidden-placeholder h1">Ahsan Rifqi Prasetyo</span>
-                            <span class="typing-text h1">Ahsan Rifqi Prasetyo</span>
+                            <span class="hidden-placeholder h1">{{ fullname }}</span>
+                            <span class="typing-text h1">{{ fullname }}</span>
                         </h1>
                     </div>
                 </div>
@@ -56,8 +56,8 @@
                             <dt>NPM</dt>
                             <dd>
                                 <div class="typing-container meta-container">
-                                    <span class="hidden-placeholder">2506624266</span>
-                                    <span class="typing-text meta-text-1">2506624266</span>
+                                    <span class="hidden-placeholder">{{ npm }}</span>
+                                    <span class="typing-text meta-text-1">{{ npm }}</span>
                                 </div>
                             </dd>
                         </div>
@@ -65,8 +65,8 @@
                             <dt>Program</dt>
                             <dd>
                                 <div class="typing-container meta-container">
-                                    <span class="hidden-placeholder">S1 Sistem Informasi</span>
-                                    <span class="typing-text meta-text-2">S1 Sistem Informasi</span>
+                                    <span class="hidden-placeholder">{{ study_program }}</span>
+                                    <span class="typing-text meta-text-2">{{ study_program }}</span>
                                 </div>
                             </dd>
                         </div>
@@ -89,7 +89,7 @@
                 </div>
                 <div class="about-content">
                     <div class="bio" style="text-align: left; max-width: 100%; margin: 0;">
-                        <p class="bio-line">An Information Systems undergraduate at Universitas Indonesia bridging software engineering, data architecture, and business strategy. I specialize in transforming complex data infrastructure into scalable digital solutions and actionable intelligence that streamline operations and accelerate decision-making.</p>
+                        <p class="bio-line">{{ bio }}</p>
                         <ul class="exp-bullets" style="margin-top: 1.5rem;">
                             <li><strong>Problem Solver:</strong> Passionate about tackling complex technical challenges with clean, efficient code.</li>
                             <li><strong>Data-Driven:</strong> Adept at analyzing metrics to guide software architecture and business strategy.</li>
@@ -229,7 +229,7 @@
 
     <footer class="site-footer">
         <div class="container" style="text-align: left;">
-            <p>&copy; 2026 Ahsan Rifqi Prasetyo. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>
