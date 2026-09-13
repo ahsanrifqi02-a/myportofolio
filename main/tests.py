@@ -20,6 +20,16 @@ class MainTest(TestCase):
         self.assertTemplateUsed(response, "index.html")
         self.assertNotContains(response, self.experience.title)
         self.assertContains(response, f'href="{reverse("main:show_experience")}"')
+        self.assertContains(response, f'href="{reverse("main:show_about")}"')
+
+    def test_about_page(self):
+        response = self.client.get(reverse("main:show_about"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "about.html")
+        self.assertContains(response, "About Me")
+        self.assertContains(response, f'href="{reverse("main:show_main")}"')
+
 
     def test_nonexistent_page_returns_404(self):
         response = self.client.get("/halaman-yang-tidak-ada/")
