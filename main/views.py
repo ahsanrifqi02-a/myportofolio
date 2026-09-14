@@ -46,4 +46,13 @@ def show_skills(request):
         "skill_list": Skill.objects.all(),
     }
     return render(request, "skills.html", context)
+
+
+def show_contact(request):
+    context = {
+        "name": "Ahsan",
+        "fullname": "Ahsan Rifqi Prasetyo",
+    }
+    return render(request, "contact.html", context)
+
 

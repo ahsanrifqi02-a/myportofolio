@@ -29,6 +29,8 @@ class MainTest(TestCase):
         self.assertContains(response, f'href="{reverse("main:show_experience")}"')
         self.assertContains(response, f'href="{reverse("main:show_about")}"')
         self.assertContains(response, f'href="{reverse("main:show_skills")}"')
+        self.assertContains(response, f'href="{reverse("main:show_contact")}"')
+
 
     def test_about_page(self):
         response = self.client.get(reverse("main:show_about"))
@@ -104,4 +106,16 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_skills"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Belum ada keahlian yang ditambahkan.")
+        self.assertContains(response, "Belum ada keahlian yang ditambahkan.")
+
+    def test_contact_page(self):
+        response = self.client.get(reverse("main:show_contact"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "contact.html")
+        self.assertContains(response, "Contact")
+        self.assertContains(response, "GitHub")
+        self.assertContains(response, "LinkedIn")
+        self.assertContains(response, "mailto:ahsanrifqi02@gmail.com")
+        self.assertContains(response, f'href="{reverse("main:show_main")}"')
+

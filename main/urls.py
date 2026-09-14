@@ -1,6 +1,12 @@
 from django.urls import path
 
-from main.views import show_main, show_about, show_experience, show_skills
+from main.views import (
+    show_main,
+    show_about,
+    show_experience,
+    show_skills,
+    show_contact,
+)
 
 app_name = "main"
 
@@ -9,5 +15,7 @@ urlpatterns = [
     path("about/", show_about, name="show_about"),
     path("experience/", show_experience, name="show_experience"),
     path("skills/", show_skills, name="show_skills"),
+    path("contact/", show_contact, name="show_contact"),
 ]
+
 
