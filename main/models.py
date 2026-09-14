@@ -24,3 +24,24 @@ class Experience(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+
+
+class Skill(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=100)
+    badge = models.CharField(max_length=20, default="</>")
+    description = models.TextField()
+    skills_list = models.CharField(
+        max_length=255,
+        help_text="Comma-separated list of skills, e.g. Python, Java, HTML5 & CSS3"
+    )
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'title']
+
+    def __str__(self):
+        return self.title
+
+    def get_chips(self):
+        return [chip.strip() for chip in self.skills_list.split(",") if chip.strip()]

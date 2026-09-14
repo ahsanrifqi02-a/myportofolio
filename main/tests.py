@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from main.models import Experience
+from main.models import Experience, Skill
 
 
 class MainTest(TestCase):
@@ -11,6 +11,13 @@ class MainTest(TestCase):
             title="Asisten Dosen PBP",
             description="Membantu mahasiswa memahami pengembangan web.",
             category="part-time",
+        )
+        self.skill = Skill.objects.create(
+            title="Programming Languages",
+            badge="</>",
+            description="Core languages used for frontend, software development, and algorithms.",
+            skills_list="Python, Java, HTML5 & CSS3",
+            order=1,
         )
 
     def test_main_url_is_accessible(self):
@@ -21,6 +28,7 @@ class MainTest(TestCase):
         self.assertNotContains(response, self.experience.title)
         self.assertContains(response, f'href="{reverse("main:show_experience")}"')
         self.assertContains(response, f'href="{reverse("main:show_about")}"')
+        self.assertContains(response, f'href="{reverse("main:show_skills")}"')
 
     def test_about_page(self):
         response = self.client.get(reverse("main:show_about"))
@@ -29,7 +37,6 @@ class MainTest(TestCase):
         self.assertTemplateUsed(response, "about.html")
         self.assertContains(response, "About Me")
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
-
 
     def test_nonexistent_page_returns_404(self):
         response = self.client.get("/halaman-yang-tidak-ada/")
@@ -66,3 +73,35 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+
+    # Skill Tests (Assignment 2 Checklist)
+    def test_skill_model(self):
+        self.assertEqual(str(self.skill), "Programming Languages")
+        self.assertEqual(self.skill.get_chips(), ["Python", "Java", "HTML5 & CSS3"])
+
+    def test_skills_url_is_accessible_and_uses_template(self):
+        """Kasus 1: URL dapat diakses dan menggunakan template yang tepat."""
+        response = self.client.get(reverse("main:show_skills"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "skills.html")
+
+    def test_skill_data_appears_on_page(self):
+        """Kasus 2: Data model muncul di halaman HTML ketika ada data."""
+        response = self.client.get(reverse("main:show_skills"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.skill.title)
+        self.assertContains(response, "&lt;/&gt;")
+        self.assertContains(response, self.skill.description)
+        self.assertContains(response, "Python")
+        self.assertContains(response, "Java")
+        self.assertNotContains(response, "Belum ada keahlian yang ditambahkan.")
+
+    def test_empty_skills_page(self):
+        """Kasus 3: Halaman HTML menampilkan pesan kondisi kosong ketika belum ada data."""
+        Skill.objects.all().delete()
+        response = self.client.get(reverse("main:show_skills"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Belum ada keahlian yang ditambahkan.")

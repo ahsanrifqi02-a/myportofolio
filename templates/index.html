@@ -23,7 +23,7 @@
                 <a href="{% url 'main:show_main' %}">Home</a>
                 <a href="{% url 'main:show_about' %}">About</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="#skills">Skills</a>
+                <a href="{% url 'main:show_skills' %}">Skills</a>
                 <a href="#contact">Contact</a>
             </nav>
         </div>
@@ -76,55 +76,6 @@
             </div>
         </section>
 
-        <!-- Skills Section -->
-        <section class="section" id="skills">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Skills & Expertise</h2>
-                </div>
-                <div class="skills-grid">
-                    <!-- Category 1: Programming Languages -->
-                    <div class="skill-card">
-                        <div class="skill-card-header">
-                            <span class="skill-badge">&lt;/&gt;</span>
-                            <h3>Programming Languages</h3>
-                        </div>
-                        <p class="skill-summary">Core languages used for frontend, software development, and algorithms.</p>
-                        <div class="skill-chips">
-                            <span class="skill-chip">Python</span>
-                            <span class="skill-chip">Java</span>
-                            <span class="skill-chip">HTML5 & CSS3</span>
-                        </div>
-                    </div>
-
-                    <!-- Category 2: Frameworks & Libraries -->
-                    <div class="skill-card">
-                        <div class="skill-card-header">
-                            <span class="skill-badge">&boxplus;</span>
-                            <h3>Frameworks & Web Tech</h3>
-                        </div>
-                        <p class="skill-summary">Modern stacks and libraries used to build scalable web platforms.</p>
-                        <div class="skill-chips">
-                            <span class="skill-chip">Django</span>
-                        </div>
-                    </div>
-
-                    <!-- Category 3: Tools & Data -->
-                    <div class="skill-card ">
-                        <div class="skill-card-header">
-                            <span class="skill-badge">&#9881;</span>
-                            <h3>Tools & Data Management</h3>
-                        </div>
-                        <p class="skill-summary">Developer tooling, database systems, and version control workflows.</p>
-                        <div class="skill-chips">
-                            <span class="skill-chip">Git & GitHub</span>
-                            <span class="skill-chip">VS Code</span>
-                            <span class="skill-chip">Figma</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Contacts Section -->
         <section class="section" id="contact">
             <div class="container">
