@@ -1,34 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio - Ahsan</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">AHSAN</a>
-            
-            <input type="checkbox" id="menu-toggle" class="menu-toggle">
-            <label for="menu-toggle" class="menu-icon">
-                <span class="nav-icon"></span>
-            </label>
-
-            <nav class="nav-menu">
-                <a href="{% url 'main:show_main' %}">Home</a>
-                <a href="{% url 'main:show_about' %}">About</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_skills' %}">Skills</a>
-                <a href="{% url 'main:show_contact' %}">Contact</a>
-            </nav>
-        </div>
-    </header>
-
+{% extends 'base.html' %}
+{% block meta %}
+<title>Portfolio - Ahsan</title>
+{% endblock meta %}
+{% block content %} 
     <main>
         <!-- Home / Hero Section -->
         <section class="hero" id="home">
@@ -76,11 +50,4 @@
             </div>
         </section>
     </main>
-
-    <footer class="site-footer">
-        <div class="container" style="text-align: left;">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
-        </div>
-    </footer>
-</body>
-</html>
+    {% endblock content %}

@@ -118,4 +118,106 @@ class MainTest(TestCase):
         self.assertContains(response, "LinkedIn")
         self.assertContains(response, "mailto:ahsanrifqi02@gmail.com")
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
+
+    # Project Tests (Tutorial 03 Langkah 1)
+    def test_create_project_get(self):
+        response = self.client.get(reverse("main:create_project"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "projects_form.html")
+        self.assertContains(response, "Add New Projects")
+        self.assertContains(response, 'name="title"')
+        self.assertContains(response, 'name="description"')
+        self.assertContains(response, 'name="tech_stack"')
+        self.assertContains(response, 'name="project_url"')
+        self.assertContains(response, 'name="project_image_url"')
+
+    def test_create_project_post_success(self):
+        data = {
+            "title": "Fern AI Assistant",
+            "description": "Build personal AI Assistant",
+            "tech_stack": "AWS, Gemini API, Python",
+            "project_url": "https://github.com/kakBurhan/burhanquestv4",
+            "project_image_url": "https://drive.google.com/thumbnail?id=123",
+        }
+        response = self.client.post(reverse("main:create_project"), data=data)
+        self.assertRedirects(response, reverse("main:show_projects"))
+
+        from main.models import Project
+        self.assertTrue(Project.objects.filter(title="Fern AI Assistant").exists())
+
+    def test_show_projects_page(self):
+        from main.models import Project
+        Project.objects.create(
+            title="Portfolio Website",
+            description="My personal portfolio",
+            tech_stack="Django, HTML, CSS",
+        )
+        response = self.client.get(reverse("main:show_projects"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "project.html")
+        self.assertContains(response, "Portfolio Website")
+        self.assertContains(response, "Projects")
+
+    def test_show_projects_search(self):
+        from main.models import Project
+        Project.objects.create(
+            title="Fern AI Assistant",
+            description="AI Assistant",
+            tech_stack="Python",
+        )
+        Project.objects.create(
+            title="Living Green Lantern's Bird",
+            description="Green lantern creature",
+            tech_stack="Creativity",
+        )
+        response = self.client.get(reverse("main:show_projects") + "?title=Fern")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Fern AI Assistant")
+        self.assertNotContains(response, "Living Green Lantern's Bird")
+
+    def test_get_projects_json(self):
+        from main.models import Project
+        import json
+        Project.objects.create(
+            title="Fern AI Assistant",
+            description="AI Assistant",
+            tech_stack="Python",
+        )
+        response = self.client.get(reverse("main:get_projects_json"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["content-type"], "application/json")
+        data = json.loads(response.content)
+        self.assertTrue(any(item["fields"]["title"] == "Fern AI Assistant" for item in data))
+
+    def test_get_projects_json_filter(self):
+        from main.models import Project
+        import json
+        Project.objects.create(
+            title="Fern AI Assistant",
+            description="AI Assistant",
+            tech_stack="Python",
+        )
+        Project.objects.create(
+            title="Living Green Lantern's Bird",
+            description="Green lantern",
+            tech_stack="Creativity",
+        )
+        response = self.client.get(reverse("main:get_projects_json") + "?title=Lantern")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["fields"]["title"], "Living Green Lantern's Bird")
+
+    def test_delete_project(self):
+        from main.models import Project
+        project = Project.objects.create(
+            title="Temporary Project",
+            description="Will be deleted",
+            tech_stack="Python",
+        )
+        response = self.client.post(reverse("main:delete_project", kwargs={"project_id": project.id}))
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertFalse(Project.objects.filter(id=project.id).exists())
+
+
 
