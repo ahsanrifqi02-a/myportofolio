@@ -42,7 +42,7 @@
     {% block content %} {% endblock content %}
     <footer class="site-footer">
       <div class="container" style="text-align: left;">
-          <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+          <p>&copy; 2026 {{ fullname|default:name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
       </div>
   </footer>
 </body>

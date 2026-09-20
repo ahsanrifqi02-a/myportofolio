@@ -1,99 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experience - Ahsan</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Experience - Ahsan</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <!-- Experience Section -->
+    <section class="section" id="experience">
         <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">AHSAN</a>
-            
-            <input type="checkbox" id="menu-toggle" class="menu-toggle">
-            <label for="menu-toggle" class="menu-icon">
-                <span class="nav-icon"></span>
-            </label>
-
-            <nav class="nav-menu">
-                <a href="{% url 'main:show_main' %}">Home</a>
-                <a href="{% url 'main:show_about' %}">About</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_skills' %}">Skills</a>
-                <a href="{% url 'main:show_projects' %}">Projects</a>
-                <a href="{% url 'main:show_contact' %}">Contact</a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <!-- Experience Section -->
-        <section class="section" id="experience">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Experience</h2>
-                </div>
-                <div class="experience-list">
-                    {% for experience in experience_list %}
-                        <article class="experience-card">
-                            <div class="exp-header">
-                                <div>
-                                    <h3 class="exp-role">{{ experience.title }}</h3>
-                                    <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia <span class="exp-location">@Depok, Jawa Barat</span></p>
-                                </div>
-                                <span class="exp-period">
-                                    {% if "Dasar-Dasar Pemrograman" in experience.title %}
-                                        Jul 2026 &ndash; Aug 2026
-                                    {% elif "Open House" in experience.title %}
-                                        Nov 2025
-                                    {% elif experience.is_ongoing %}
-                                        Sedang berlangsung
-                                    {% else %}
-                                        Selesai
-                                    {% endif %}
-                                </span>
-                            </div>
-                            <div class="exp-body">
-                                <p class="exp-desc">{{ experience.description }}</p>
-                                {% if "Dasar-Dasar Pemrograman" in experience.title %}
-                                    <ul class="exp-bullets">
-                                        <li><strong>Core Instruction:</strong> Facilitated weekly lab sessions covering procedural programming, data structures (lists, dictionaries, sets), recursion, and basic algorithmic thinking.</li>
-                                        <li><strong>Hands-On Mentorship:</strong> Provided live, step-by-step code reviews and debugging support, teaching students how to read tracebacks and approach syntax and logic errors systematically.</li>
-                                    </ul>
-                                {% elif "Open House" in experience.title %}
-                                    <ul class="exp-bullets">
-                                        <li><strong>Fundamental Concepts:</strong> Taught computational thinking, variables, conditional statements, and loops using interactive, visual coding exercises.</li>
-                                        <li><strong>Practical Application:</strong> Guided students through building simple terminal programs and text-based games, reinforcing logic design and creative problem-solving.</li>
-                                    </ul>
-                                {% endif %}
-                            </div>
-                            <div class="experience-chips" style="margin-top: 1rem;">
-                                <span class="experience-chip">{{ experience.get_category_display }}</span>
-                                {% if experience.is_ongoing %}
-                                    <span class="experience-chip">Sedang berlangsung</span>
-                                {% else %}
-                                    <span class="experience-chip">Selesai</span>
-                                {% endif %}
-                            </div>
-                        </article>
-                    {% empty %}
-                        <p class="empty-state">
-                            Belum ada pengalaman yang ditambahkan.
-                        </p>
-                    {% endfor %}
-                </div>
+            <div class="section-header">
+                <h2 class="section-title">Experience</h2>
             </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container" style="text-align: left;">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <div class="experience-list">
+                {% for experience in experience_list %}
+                    <article class="experience-card">
+                        <div class="exp-header">
+                            <div>
+                                <h3 class="exp-role">{{ experience.title }}</h3>
+                                <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia <span class="exp-location">@Depok, Jawa Barat</span></p>
+                            </div>
+                            <span class="exp-period">
+                                {% if "Dasar-Dasar Pemrograman" in experience.title %}
+                                    Jul 2026 &ndash; Aug 2026
+                                {% elif "Open House" in experience.title %}
+                                    Nov 2025
+                                {% elif experience.is_ongoing %}
+                                    Sedang berlangsung
+                                {% else %}
+                                    Selesai
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="exp-body">
+                            <p class="exp-desc">{{ experience.description }}</p>
+                            {% if "Dasar-Dasar Pemrograman" in experience.title %}
+                                <ul class="exp-bullets">
+                                    <li><strong>Core Instruction:</strong> Facilitated weekly lab sessions covering procedural programming, data structures (lists, dictionaries, sets), recursion, and basic algorithmic thinking.</li>
+                                    <li><strong>Hands-On Mentorship:</strong> Provided live, step-by-step code reviews and debugging support, teaching students how to read tracebacks and approach syntax and logic errors systematically.</li>
+                                </ul>
+                            {% elif "Open House" in experience.title %}
+                                <ul class="exp-bullets">
+                                    <li><strong>Fundamental Concepts:</strong> Taught computational thinking, variables, conditional statements, and loops using interactive, visual coding exercises.</li>
+                                    <li><strong>Practical Application:</strong> Guided students through building simple terminal programs and text-based games, reinforcing logic design and creative problem-solving.</li>
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <div class="experience-chips" style="margin-top: 1rem;">
+                            <span class="experience-chip">{{ experience.get_category_display }}</span>
+                            {% if experience.is_ongoing %}
+                                <span class="experience-chip">Sedang berlangsung</span>
+                            {% else %}
+                                <span class="experience-chip">Selesai</span>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="empty-state">
+                        Belum ada pengalaman yang ditambahkan.
+                    </p>
+                {% endfor %}
+            </div>
         </div>
-    </footer>
-</body>
-</html>
+    </section>
+</main>
+{% endblock content %}

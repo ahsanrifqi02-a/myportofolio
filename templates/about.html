@@ -1,66 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Ahsan</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>About - Ahsan</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <!-- About Section -->
+    <section class="section" id="about">
         <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">AHSAN</a>
-            
-            <input type="checkbox" id="menu-toggle" class="menu-toggle">
-            <label for="menu-toggle" class="menu-icon">
-                <span class="nav-icon"></span>
-            </label>
-
-            <nav class="nav-menu">
-                <a href="{% url 'main:show_main' %}">Home</a>
-                <a href="{% url 'main:show_about' %}">About</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_skills' %}">Skills</a>
-                <a href="{% url 'main:show_projects' %}">Projects</a>
-                <a href="{% url 'main:show_contact' %}">Contact</a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <!-- About Section -->
-        <section class="section" id="about">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">About Me</h2>
-                </div>
-                <div class="profile-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/ahsan.jpg" alt="Photo of Ahsan">
-                </div>
-                <div class="about-content">
-                    <div class="bio" style="text-align: left; max-width: 100%; margin: 0;">
-                        <p class="bio-line">{{ bio }}</p>
-                        <ul class="exp-bullets" style="margin-top: 1.5rem;">
-                            <li><strong>Problem Solver:</strong> Passionate about tackling complex technical challenges with clean, efficient code.</li>
-                            <li><strong>Data-Driven:</strong> Adept at analyzing metrics to guide software architecture and business strategy.</li>
-                            <li><strong>Continuous Learner:</strong> Always exploring new frameworks, languages, and methodologies to stay on the cutting edge.</li>
-                            <li><strong>Focus:</strong> Data Science and IT Business</li>
-                            <li><strong>Based in:</strong> Jakarta, Indonesia</li>
-                        </ul>
-                    </div>
+            <div class="section-header">
+                <h2 class="section-title">About Me</h2>
+            </div>
+            <div class="profile-photo">
+                <div class="photo-block"></div>
+                <img class="avatar" src="{% static 'img/ahsan.jpg' %}" alt="Photo of Ahsan">
+            </div>
+            <div class="about-content">
+                <div class="bio" style="text-align: left; max-width: 100%; margin: 0;">
+                    <p class="bio-line">{{ bio }}</p>
+                    <ul class="exp-bullets" style="margin-top: 1.5rem;">
+                        <li><strong>Problem Solver:</strong> Passionate about tackling complex technical challenges with clean, efficient code.</li>
+                        <li><strong>Data-Driven:</strong> Adept at analyzing metrics to guide software architecture and business strategy.</li>
+                        <li><strong>Continuous Learner:</strong> Always exploring new frameworks, languages, and methodologies to stay on the cutting edge.</li>
+                        <li><strong>Focus:</strong> Data Science and IT Business</li>
+                        <li><strong>Based in:</strong> Jakarta, Indonesia</li>
+                    </ul>
                 </div>
             </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container" style="text-align: left;">
-            <p>&copy; 2026 {{ fullname|default:name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
-    </footer>
-</body>
-</html>
+    </section>
+</main>
+{% endblock content %}
