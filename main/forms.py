@@ -1,7 +1,29 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput
+from django import forms
+from django.conf import settings
+from django.forms import ModelForm, TextInput, Textarea, URLInput, PasswordInput
 from main.models import Project
 
 class ProjectForm(ModelForm):
+    password = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                "placeholder": "Enter secret code",
+                "autocomplete": "current-password",
+            }
+        ),
+        label="Secret Code",
+        required=False,
+    )
+
+    field_order = [
+        "title",
+        "description",
+        "tech_stack",
+        "project_url",
+        "project_image_url",
+        "password",
+    ]
+
     class Meta:
         model = Project
         fields = [
@@ -12,11 +34,11 @@ class ProjectForm(ModelForm):
             "project_image_url",
         ]
         labels = {
-            "title": "Nama Proyek",
-            "description": "Deskripsi Proyek",
-            "tech_stack": "Teknologi yang Digunakan",
-            "project_url": "URL Proyek",
-            "project_image_url": "URL Gambar Proyek",
+            "title": "Project Title",
+            "description": "Project Description",
+            "tech_stack": "Technologies Used",
+            "project_url": "Project URL",
+            "project_image_url": "Project Image URL",
         }
         widgets = {
             "title": TextInput(
@@ -27,7 +49,7 @@ class ProjectForm(ModelForm):
             ),
             "description": Textarea(
                 attrs={
-                    "placeholder": "Ceritakan Proyekmu",
+                    "placeholder": "Tell us about your project",
                     "rows": 3,
                 }
             ),
@@ -47,3 +69,18 @@ class ProjectForm(ModelForm):
                 }
             ),
         }
+
+    def __init__(self, *args, is_header_authorized=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_header_authorized = is_header_authorized
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.is_header_authorized:
+            password = cleaned_data.get("password")
+            secret_code = getattr(settings, "SECRET_CODE", "")
+            if not password:
+                self.add_error("password", "Secret code is required.")
+            elif not secret_code or password != secret_code:
+                self.add_error("password", "Incorrect secret code! Access denied.")
+        return cleaned_data

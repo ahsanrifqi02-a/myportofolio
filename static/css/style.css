@@ -588,11 +588,15 @@ html {
 
 /* Footer & Responsive */
 .site-footer {
-    padding: 1.5rem 1.5rem;
+    padding: 1.5rem 0;
     color: var(--text-muted);
     font-size: 0.85rem;
     border-top: 1px solid var(--line);
-    text-align: center;
+    text-align: left;
+}
+
+.site-footer .container {
+    text-align: left;
 }
 
 @media (max-width: 600px) {
@@ -721,34 +725,77 @@ html {
     margin-top: 0.35rem;
 }
 
+/* Button Systems */
 .button {
-    display: inline-block;
+    /* --- Default / Primary Theme (Cyan & Ink) --- */
+    --btn-bg: var(--accent);
+    --btn-color: var(--ink);
+    --btn-border: transparent;
+    --btn-hover-bg: var(--accent-dark);
+    --btn-hover-color: var(--ink);
+    --btn-hover-border: transparent;
+
+    /* --- Layout & Typography --- */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
     height: fit-content;
-    border: 0;
-    border-radius: var(--radius);
-    padding: 0.65rem 1rem;
-    background: var(--accent);
-    color: white;
-    cursor: pointer;
+    padding: 0.65rem 1.15rem;
     font: inherit;
+    font-size: 0.95rem;
     font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
     text-decoration: none;
+    border-radius: var(--radius);
+    border: 1px solid var(--btn-border);
+    background-color: var(--btn-bg);
+    color: var(--btn-color);
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 
-.button-secondary {
-    background: var(--red);
+.button,
+.button * {
+    color: var(--btn-color);
 }
 
-.button:hover{
-    border-color: var(--ink);
-    background-color: var(--accent-dark);
+.button:hover {
+    background-color: var(--btn-hover-bg);
+    color: var(--btn-hover-color);
+    border-color: var(--btn-hover-border);
     transform: translateY(-1px);
 }
 
-.button-secondary:hover{
-    border-color: var(--red);
-    background-color: var(--dark-red);
-    transform: translateY(-1px);
+.button:hover * {
+    color: var(--btn-hover-color);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+/* Secondary / Cancel Button (Dark background, Light text) */
+.button-secondary,
+.button-cancel {
+    --btn-bg: var(--ink);
+    --btn-color: var(--paper);
+    --btn-border: var(--line);
+    --btn-hover-bg: #2e2c29;
+    --btn-hover-color: var(--paper);
+    --btn-hover-border: var(--line);
+}
+
+/* Danger Button (Red background, White text) */
+.button-danger {
+    --btn-bg: #b42318;
+    --btn-color: #ffffff;
+    --btn-border: transparent;
+    --btn-hover-bg: #912014;
+    --btn-hover-color: #ffffff;
+    --btn-hover-border: transparent;
 }
 
 /* projects */
@@ -796,24 +843,34 @@ html {
 
 .project-search {
     display: flex;
+    align-items: stretch;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
 }
 
 .project-search__input {
-    width: 100%;
+    flex: 1;
     min-width: 0;
-    padding: 0.7rem;
+    padding: 0.75rem 1rem;
     border: 1px solid var(--line);
     border-radius: var(--radius);
     background: var(--paper-dark);
     color: var(--ink);
     font: inherit;
+    box-sizing: border-box;
 }
 
 .project-search__input:focus {
     outline: 2px solid var(--accent);
     border-color: var(--accent);
+}
+
+.project-search .button {
+    height: auto;
+    min-width: 100px;
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    white-space: nowrap;
 }
 
 .project-actions {
@@ -921,19 +978,6 @@ html {
     margin-top: 1.5rem;
 }
 
-.button-danger {
-    background: #b42318;
-}
-
-.button-cancel {
-    background: var(--ink);
-}
-
-.button-danger:hover {
-    background: #912014;
-    transform: translateY(-1px);
-}
-
 @media (max-width: 600px) {
     .project-header {
         align-items: flex-start;
@@ -973,3 +1017,30 @@ html {
         text-align: center;
     }
 }
+
+/* Alerts / Django Messages */
+.messages-container {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.alert {
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+

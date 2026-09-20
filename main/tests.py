@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -131,19 +131,52 @@ class MainTest(TestCase):
         self.assertContains(response, 'name="project_url"')
         self.assertContains(response, 'name="project_image_url"')
 
-    def test_create_project_post_success(self):
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_create_project_post_success_with_password(self):
         data = {
             "title": "Fern AI Assistant",
             "description": "Build personal AI Assistant",
             "tech_stack": "AWS, Gemini API, Python",
             "project_url": "https://github.com/kakBurhan/burhanquestv4",
             "project_image_url": "https://drive.google.com/thumbnail?id=123",
+            "password": "test-secret-123",
         }
         response = self.client.post(reverse("main:create_project"), data=data)
         self.assertRedirects(response, reverse("main:show_projects"))
 
         from main.models import Project
         self.assertTrue(Project.objects.filter(title="Fern AI Assistant").exists())
+
+    def test_create_project_post_wrong_password(self):
+        data = {
+            "title": "Unauthorized Project",
+            "description": "Should fail",
+            "tech_stack": "Python",
+            "password": "wrongpassword",
+        }
+        response = self.client.post(reverse("main:create_project"), data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Incorrect secret code! Access denied.")
+
+        from main.models import Project
+        self.assertFalse(Project.objects.filter(title="Unauthorized Project").exists())
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_create_project_post_with_header(self):
+        data = {
+            "title": "Header Auth Project",
+            "description": "Created with secret header",
+            "tech_stack": "Django",
+        }
+        response = self.client.post(
+            reverse("main:create_project"),
+            data=data,
+            HTTP_X_SECRET_KEY="test-secret-123",
+        )
+        self.assertRedirects(response, reverse("main:show_projects"))
+
+        from main.models import Project
+        self.assertTrue(Project.objects.filter(title="Header Auth Project").exists())
 
     def test_show_projects_page(self):
         from main.models import Project
@@ -208,16 +241,47 @@ class MainTest(TestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["fields"]["title"], "Living Green Lantern's Bird")
 
-    def test_delete_project(self):
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_project_with_password(self):
         from main.models import Project
         project = Project.objects.create(
             title="Temporary Project",
             description="Will be deleted",
             tech_stack="Python",
         )
-        response = self.client.post(reverse("main:delete_project", kwargs={"project_id": project.id}))
+        response = self.client.post(
+            reverse("main:delete_project", kwargs={"project_id": project.id}),
+            data={"password": "test-secret-123"},
+        )
         self.assertRedirects(response, reverse("main:show_projects"))
         self.assertFalse(Project.objects.filter(id=project.id).exists())
 
+    def test_delete_project_wrong_password(self):
+        from main.models import Project
+        project = Project.objects.create(
+            title="Protected Project",
+            description="Should not be deleted",
+            tech_stack="Python",
+        )
+        response = self.client.post(
+            reverse("main:delete_project", kwargs={"project_id": project.id}),
+            data={"password": "wrongpassword"},
+        )
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertTrue(Project.objects.filter(id=project.id).exists())
 
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_project_with_header(self):
+        from main.models import Project
+        project = Project.objects.create(
+            title="API Deleted Project",
+            description="Deleted via header",
+            tech_stack="Python",
+        )
+        response = self.client.post(
+            reverse("main:delete_project", kwargs={"project_id": project.id}),
+            HTTP_X_SECRET_KEY="test-secret-123",
+        )
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertFalse(Project.objects.filter(id=project.id).exists())
 

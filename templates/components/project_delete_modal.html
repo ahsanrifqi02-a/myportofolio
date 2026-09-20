@@ -2,9 +2,9 @@
     <button type="button"
             class="button button-danger"
             popovertarget="delete-project-{{ project.id }}"
-            aria-label="Hapus {{ project.title }}"
-            title="Hapus proyek">
-        Hapus Proyek
+            aria-label="Delete {{ project.title }}"
+            title="Delete project">
+        Delete Project
     </button>
 </p>
 <div id="delete-project-{{ project.id }}"
@@ -17,27 +17,38 @@
             class="project-delete-modal__backdrop"
             popovertarget="delete-project-{{ project.id }}"
             popovertargetaction="hide"
-            aria-label="Tutup konfirmasi hapus"></button>
+            aria-label="Close delete confirmation"></button>
     <div class="project-delete-modal__content">
         <button type="button"
                 class="project-delete-modal__close"
                 popovertarget="delete-project-{{ project.id }}"
                 popovertargetaction="hide"
-                aria-label="Tutup konfirmasi hapus">&times;</button>
-        <h2 id="delete-project-title-{{ project.id }}">Hapus Projek?</h2>
+                aria-label="Close delete confirmation">&times;</button>
+        <h2 id="delete-project-title-{{ project.id }}">Delete Project?</h2>
         <p>
-            Apakah Anda yakin ingin menghapus
+            Are you sure you want to delete
             <strong>{{ project.title }}</strong>?
         </p>
-        <div class="project-delete-modal__actions">
-            <button type="button"
-                    class="button button-cancel"
-                    popovertarget="delete-project-{{ project.id }}"
-                    popovertargetaction="hide">Batal</button>
-            <form method="post" action="{% url 'main:delete_project' project.id %}">
-                {% csrf_token %}
-                <button type="submit" class="button button-danger">Ya, Hapus</button>
-            </form>
-        </div>
+        <form method="post" action="{% url 'main:delete_project' project.id %}" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 1.25rem; text-align: left;">
+                <label for="delete-password-{{ project.id }}" style="font-size: 0.9rem; font-weight: 700; color: var(--ink);">Secret Code:</label>
+                <input type="password"
+                       name="password"
+                       id="delete-password-{{ project.id }}"
+                       placeholder="Enter secret code"
+                       required
+                       class="project-search__input"
+                       style="margin-top: 0.35rem;"
+                       autocomplete="current-password">
+            </div>
+            <div class="project-delete-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="delete-project-{{ project.id }}"
+                        popovertargetaction="hide">Cancel</button>
+                <button type="submit" class="button button-danger">Yes, Delete</button>
+            </div>
+        </form>
     </div>
 </div>
