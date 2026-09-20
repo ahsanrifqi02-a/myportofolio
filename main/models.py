@@ -57,4 +57,27 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Education(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    institution = models.CharField(max_length=255)
+    degree = models.CharField(max_length=100)
+    field_of_study = models.CharField(max_length=255)
+    start_year = models.IntegerField()
+    end_year = models.IntegerField(blank=True, null=True)
+    gpa = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-start_year', '-created_at']
+
+    def __str__(self):
+        return f"{self.degree} in {self.field_of_study} - {self.institution}"
+
+    @property
+    def is_ongoing(self):
+        return self.end_year is None
 

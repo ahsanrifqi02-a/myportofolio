@@ -4,8 +4,8 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from main.forms import ProjectForm
-from main.models import Experience, Skill, Project
+from main.forms import ProjectForm, EducationForm
+from main.models import Experience, Skill, Project, Education
 
 
 def check_secret_code(request, post_key="password"):
@@ -33,9 +33,19 @@ def show_main(request):
         "bio": (
             "An Information Systems undergraduate at Universitas Indonesia bridging software engineering, data architecture, and business strategy. I specialize in transforming complex data infrastructure into scalable digital solutions and actionable intelligence that streamline operations and accelerate decision-making."
         ),
-        "fullname": "Ahsan Rifqi Prasetyo"
+        "fullname": "Ahsan Rifqi Prasetyo",
+        "skill_list": Skill.objects.all(),
     }
     return render(request, "index.html", context)
+
+
+def show_education(request):
+    context = {
+        "name": "Ahsan",
+        "fullname": "Ahsan Rifqi Prasetyo",
+        "education_list": Education.objects.all(),
+    }
+    return render(request, "education.html", context)
 
 
 def show_about(request):

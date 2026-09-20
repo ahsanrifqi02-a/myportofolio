@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Education - Ahsan</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <!-- Education Section -->
+    <section class="section" id="education">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Education</h2>
+            </div>
+            <div class="experience-list">
+                {% for edu in education_list %}
+                    <article class="experience-card">
+                        <div class="exp-header">
+                            <div>
+                                <h3 class="exp-role">{{ edu.degree }} in {{ edu.field_of_study }}</h3>
+                                <p class="exp-org">{{ edu.institution }}</p>
+                            </div>
+                            <span class="exp-period">
+                                {{ edu.start_year }} &ndash; {% if edu.is_ongoing %}Present{% else %}{{ edu.end_year }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="exp-body">
+                            {% if edu.description %}
+                                <p class="exp-desc">{{ edu.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="experience-chips" style="margin-top: 1rem;">
+                            {% if edu.gpa %}
+                                <span class="experience-chip">GPA: {{ edu.gpa }}</span>
+                            {% endif %}
+                            {% if edu.is_ongoing %}
+                                <span class="experience-chip">Ongoing</span>
+                            {% else %}
+                                <span class="experience-chip">Completed</span>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="empty-state">
+                        No education history has been added yet.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from main.models import Experience, Skill
+from main.models import Experience, Skill, Education
 
 
 class MainTest(TestCase):
@@ -19,6 +19,15 @@ class MainTest(TestCase):
             skills_list="Python, Java, HTML5 & CSS3",
             order=1,
         )
+        self.education = Education.objects.create(
+            institution="Universitas Indonesia",
+            degree="Sarjana (S1)",
+            field_of_study="Sistem Informasi",
+            start_year=2024,
+            end_year=2028,
+            gpa=3.85,
+            description="Fokus pada rekayasa perangkat lunak dan sistem informasi korporat.",
+        )
 
     def test_main_url_is_accessible(self):
         response = self.client.get(reverse("main:show_main"))
@@ -28,8 +37,10 @@ class MainTest(TestCase):
         self.assertNotContains(response, self.experience.title)
         self.assertContains(response, f'href="{reverse("main:show_experience")}"')
         self.assertContains(response, f'href="{reverse("main:show_about")}"')
-        self.assertContains(response, f'href="{reverse("main:show_skills")}"')
+        self.assertContains(response, f'href="{reverse("main:show_education")}"')
         self.assertContains(response, f'href="{reverse("main:show_contact")}"')
+        self.assertContains(response, "Python")
+        self.assertContains(response, "Django")
 
 
     def test_about_page(self):
@@ -76,7 +87,6 @@ class MainTest(TestCase):
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
 
-    # Skill Tests (Assignment 2 Checklist)
     def test_skill_model(self):
         self.assertEqual(str(self.skill), "Programming Languages")
         self.assertEqual(self.skill.get_chips(), ["Python", "Java", "HTML5 & CSS3"])
@@ -107,6 +117,69 @@ class MainTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Belum ada keahlian yang ditambahkan.")
+
+    def test_education_model(self):
+        self.assertEqual(str(self.education), "Sarjana (S1) in Sistem Informasi - Universitas Indonesia")
+        self.assertFalse(self.education.is_ongoing)
+        ongoing_edu = Education.objects.create(
+            institution="Universitas Indonesia",
+            degree="S1",
+            field_of_study="SI",
+            start_year=2024,
+        )
+        self.assertTrue(ongoing_edu.is_ongoing)
+
+    def test_education_url_is_accessible_and_uses_template(self):
+        response = self.client.get(reverse("main:show_education"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education.html")
+
+    def test_education_data_appears_on_page(self):
+        response = self.client.get(reverse("main:show_education"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.education.institution)
+        self.assertContains(response, self.education.degree)
+        self.assertContains(response, self.education.field_of_study)
+        self.assertContains(response, "3.85")
+
+    def test_empty_education_page(self):
+        Education.objects.all().delete()
+        response = self.client.get(reverse("main:show_education"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No education history has been added yet.")
+
+    def test_education_form_fields_and_validation(self):
+        from main.forms import EducationForm
+        form = EducationForm()
+        expected_fields = [
+            "institution",
+            "degree",
+            "field_of_study",
+            "start_year",
+            "end_year",
+            "gpa",
+            "description",
+            "password",
+        ]
+        for field in expected_fields:
+            self.assertIn(field, form.fields)
+
+        self.assertNotIn("id", form.fields)
+        self.assertNotIn("created_at", form.fields)
+        self.assertNotIn("updated_at", form.fields)
+
+        # Test valid submission with header authorization
+        valid_data = {
+            "institution": "SMA Negeri 1",
+            "degree": "SMA",
+            "field_of_study": "MIPA",
+            "start_year": 2021,
+            "end_year": 2024,
+            "gpa": "3.90",
+            "description": "Juara Olimpiade",
+        }
+        form = EducationForm(data=valid_data, is_header_authorized=True)
+        self.assertTrue(form.is_valid())
 
     def test_contact_page(self):
         response = self.client.get(reverse("main:show_contact"))
@@ -284,4 +357,4 @@ class MainTest(TestCase):
         )
         self.assertRedirects(response, reverse("main:show_projects"))
         self.assertFalse(Project.objects.filter(id=project.id).exists())
-
+

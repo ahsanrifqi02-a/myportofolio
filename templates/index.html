@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block meta %}
 <title>Portfolio - Ahsan</title>
 {% endblock meta %}
@@ -46,6 +47,29 @@
                         </div>
                     </dl>
                     
+                </div>
+                <!-- Skills Showcase -->
+                <div class="hero-skills" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                    <div class="skills-icons-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; align-items: center;">
+                        <div class="skill-icon-item" title="Python" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/python.svg' %}" alt="Python" width="36" height="36">
+                        </div>
+                        <div class="skill-icon-item" title="Django" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/django.svg' %}" alt="Django" width="36" height="36">
+                        </div>
+                        <div class="skill-icon-item" title="Java" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/java.svg' %}" alt="Java" width="36" height="36">
+                        </div>
+                        <div class="skill-icon-item" title="HTML5 & CSS3" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/html5.svg' %}" alt="HTML5" width="36" height="36">
+                        </div>
+                        <div class="skill-icon-item" title="CSS" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/css.svg' %}" alt="CSS" width="36" height="36">
+                        </div>
+                        <div class="skill-icon-item" title="Git" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                            <img src="{% static 'img/skills/git.svg' %}" alt="Git" width="36" height="36">
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
