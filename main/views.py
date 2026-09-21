@@ -4,7 +4,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from main.forms import ProjectForm, EducationForm
+from main.forms import ProjectForm, EducationForm, ExperienceForm
 from main.models import Experience, Skill, Project, Education
 
 
@@ -140,6 +140,64 @@ def delete_project(request, project_id):
             messages.error(request, "Incorrect secret code! Project could not be deleted.")
             return redirect("main:show_projects")
     return redirect("main:show_projects")
+
+
+def create_education(request):
+    is_auth = check_secret_code(request, post_key=None)
+    form = EducationForm(request.POST or None, is_header_authorized=is_auth)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "New education added successfully!")
+        return redirect("main:show_education")
+
+    context = {
+        "name": "Ahsan",
+        "form": form,
+    }
+    return render(request, "education_form.html", context)
+
+
+def create_experience(request):
+    is_auth = check_secret_code(request, post_key=None)
+    form = ExperienceForm(request.POST or None, is_header_authorized=is_auth)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "New experience added successfully!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Ahsan",
+        "form": form,
+    }
+    return render(request, "experience_form.html", context)
+
+
+def delete_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+    if request.method == "POST":
+        if check_secret_code(request, post_key="password"):
+            education.delete()
+            messages.success(request, "Education entry deleted successfully!")
+            return redirect("main:show_education")
+        else:
+            messages.error(request, "Incorrect secret code! Education entry could not be deleted.")
+            return redirect("main:show_education")
+    return redirect("main:show_education")
+
+
+def delete_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    if request.method == "POST":
+        if check_secret_code(request, post_key="password"):
+            experience.delete()
+            messages.success(request, "Experience entry deleted successfully!")
+            return redirect("main:show_experience")
+        else:
+            messages.error(request, "Incorrect secret code! Experience entry could not be deleted.")
+            return redirect("main:show_experience")
+    return redirect("main:show_experience")
 
 
 

@@ -71,6 +71,9 @@ class MainTest(TestCase):
         self.assertContains(response, "Part-Time")
         self.assertContains(response, "Sedang berlangsung")
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
+        self.assertContains(response, f'href="{reverse("main:create_experience")}"')
+        self.assertContains(response, "Add Experience")
+        self.assertContains(response, f'popovertarget="delete-experience-{self.experience.id}"')
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
@@ -133,6 +136,8 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")
+        self.assertContains(response, f'href="{reverse("main:create_education")}"')
+        self.assertContains(response, "Add Education")
 
     def test_education_data_appears_on_page(self):
         response = self.client.get(reverse("main:show_education"))
@@ -141,6 +146,7 @@ class MainTest(TestCase):
         self.assertContains(response, self.education.degree)
         self.assertContains(response, self.education.field_of_study)
         self.assertContains(response, "3.85")
+        self.assertContains(response, f'popovertarget="delete-education-{self.education.id}"')
 
     def test_empty_education_page(self):
         Education.objects.all().delete()
@@ -148,6 +154,7 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No education history has been added yet.")
 
+    @override_settings(SECRET_CODE="test-secret-123")
     def test_education_form_fields_and_validation(self):
         from main.forms import EducationForm
         form = EducationForm()
@@ -164,22 +171,83 @@ class MainTest(TestCase):
         for field in expected_fields:
             self.assertIn(field, form.fields)
 
+        # Verify id and timestamp fields are excluded
         self.assertNotIn("id", form.fields)
         self.assertNotIn("created_at", form.fields)
         self.assertNotIn("updated_at", form.fields)
 
-        # Test valid submission with header authorization
+        # Test valid submission with password
         valid_data = {
             "institution": "SMA Negeri 1",
-            "degree": "SMA",
-            "field_of_study": "MIPA",
+            "degree": "High School Diploma",
+            "field_of_study": "Natural Sciences (MIPA)",
             "start_year": 2021,
             "end_year": 2024,
             "gpa": "3.90",
-            "description": "Juara Olimpiade",
+            "description": "Science competition participant.",
+            "password": "test-secret-123",
         }
-        form = EducationForm(data=valid_data, is_header_authorized=True)
+        form = EducationForm(data=valid_data)
         self.assertTrue(form.is_valid())
+        saved_edu = form.save()
+        self.assertEqual(saved_edu.institution, "SMA Negeri 1")
+
+        # Test submission with wrong password
+        invalid_data = valid_data.copy()
+        invalid_data["password"] = "wrong-code"
+        invalid_form = EducationForm(data=invalid_data)
+        self.assertFalse(invalid_form.is_valid())
+        self.assertIn("password", invalid_form.errors)
+
+        # Test valid submission with header authorization
+        header_form = EducationForm(data=valid_data, is_header_authorized=True)
+        self.assertTrue(header_form.is_valid())
+
+    def test_create_education_get(self):
+        response = self.client.get(reverse("main:create_education"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education_form.html")
+        self.assertContains(response, "Add New Education")
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_create_education_post_success(self):
+        data = {
+            "institution": "Stanford University",
+            "degree": "Master of Science",
+            "field_of_study": "Computer Science",
+            "start_year": 2028,
+            "end_year": 2030,
+            "gpa": "4.00",
+            "description": "AI & Systems specialization",
+            "password": "test-secret-123",
+        }
+        response = self.client.post(reverse("main:create_education"), data=data)
+        self.assertRedirects(response, reverse("main:show_education"))
+        self.assertTrue(Education.objects.filter(institution="Stanford University").exists())
+
+    def test_create_experience_get(self):
+        response = self.client.get(reverse("main:create_experience"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "experience_form.html")
+        self.assertContains(response, "Add New Experience")
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_create_experience_post_success(self):
+        data = {
+            "title": "Backend Intern",
+            "category": "internship",
+            "description": "Building microservices with Django",
+            "thumbnail": "https://example.com/logo.png",
+            "started_at": "2026-06-01",
+            "ended_at": "2026-08-31",
+            "password": "test-secret-123",
+        }
+        response = self.client.post(reverse("main:create_experience"), data=data)
+        self.assertRedirects(response, reverse("main:show_experience"))
+        created = Experience.objects.filter(title="Backend Intern").first()
+        self.assertIsNotNone(created)
+        self.assertEqual(str(created.started_at), "2026-06-01")
+        self.assertEqual(str(created.ended_at), "2026-08-31")
 
     def test_contact_page(self):
         response = self.client.get(reverse("main:show_contact"))
@@ -357,4 +425,116 @@ class MainTest(TestCase):
         )
         self.assertRedirects(response, reverse("main:show_projects"))
         self.assertFalse(Project.objects.filter(id=project.id).exists())
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_education_with_password(self):
+        edu = Education.objects.create(
+            institution="Oxford University",
+            degree="Master",
+            field_of_study="Computer Science",
+            start_year=2025,
+            end_year=2026,
+        )
+        response = self.client.post(
+            reverse("main:delete_education", kwargs={"education_id": edu.id}),
+            data={"password": "test-secret-123"},
+            follow=True,
+        )
+        self.assertRedirects(response, reverse("main:show_education"))
+        self.assertFalse(Education.objects.filter(id=edu.id).exists())
+        self.assertContains(response, "Education entry deleted successfully!")
+
+    def test_delete_education_wrong_password(self):
+        edu = Education.objects.create(
+            institution="Cambridge University",
+            degree="Master",
+            field_of_study="Computer Science",
+            start_year=2025,
+            end_year=2026,
+        )
+        response = self.client.post(
+            reverse("main:delete_education", kwargs={"education_id": edu.id}),
+            data={"password": "wrongpassword"},
+            follow=True,
+        )
+        self.assertRedirects(response, reverse("main:show_education"))
+        self.assertTrue(Education.objects.filter(id=edu.id).exists())
+        self.assertContains(response, "Incorrect secret code! Education entry could not be deleted.")
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_education_with_header(self):
+        edu = Education.objects.create(
+            institution="MIT",
+            degree="PhD",
+            field_of_study="Artificial Intelligence",
+            start_year=2026,
+        )
+        response = self.client.post(
+            reverse("main:delete_education", kwargs={"education_id": edu.id}),
+            HTTP_X_SECRET_KEY="test-secret-123",
+        )
+        self.assertRedirects(response, reverse("main:show_education"))
+        self.assertFalse(Education.objects.filter(id=edu.id).exists())
+
+    def test_delete_education_404(self):
+        import uuid
+        response = self.client.post(
+            reverse("main:delete_education", kwargs={"education_id": uuid.uuid4()}),
+            data={"password": "test-secret-123"},
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_experience_with_password(self):
+        exp = Experience.objects.create(
+            title="Software Engineering Intern",
+            description="Working on backend systems.",
+            category="internship",
+        )
+        response = self.client.post(
+            reverse("main:delete_experience", kwargs={"experience_id": exp.id}),
+            data={"password": "test-secret-123"},
+            follow=True,
+        )
+        self.assertRedirects(response, reverse("main:show_experience"))
+        self.assertFalse(Experience.objects.filter(id=exp.id).exists())
+        self.assertContains(response, "Experience entry deleted successfully!")
+
+    def test_delete_experience_wrong_password(self):
+        exp = Experience.objects.create(
+            title="Teaching Assistant",
+            description="Teaching Python programming.",
+            category="part-time",
+        )
+        response = self.client.post(
+            reverse("main:delete_experience", kwargs={"experience_id": exp.id}),
+            data={"password": "wrongpassword"},
+            follow=True,
+        )
+        self.assertRedirects(response, reverse("main:show_experience"))
+        self.assertTrue(Experience.objects.filter(id=exp.id).exists())
+        self.assertContains(response, "Incorrect secret code! Experience entry could not be deleted.")
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_delete_experience_with_header(self):
+        exp = Experience.objects.create(
+            title="Research Assistant",
+            description="AI lab research.",
+            category="internship",
+        )
+        response = self.client.post(
+            reverse("main:delete_experience", kwargs={"experience_id": exp.id}),
+            HTTP_X_SECRET_KEY="test-secret-123",
+        )
+        self.assertRedirects(response, reverse("main:show_experience"))
+        self.assertFalse(Experience.objects.filter(id=exp.id).exists())
+
+    def test_delete_experience_404(self):
+        import uuid
+        response = self.client.post(
+            reverse("main:delete_experience", kwargs={"experience_id": uuid.uuid4()}),
+            data={"password": "test-secret-123"},
+        )
+        self.assertEqual(response.status_code, 404)
+
 

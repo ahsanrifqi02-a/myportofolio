@@ -1,0 +1,54 @@
+<p class="experience-status">
+    <button type="button"
+            class="button button-danger"
+            popovertarget="delete-education-{{ edu.id }}"
+            aria-label="Delete {{ edu.degree }} in {{ edu.field_of_study }}"
+            title="Delete education">
+        Delete
+    </button>
+</p>
+<div id="delete-education-{{ edu.id }}"
+     class="project-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-education-title-{{ edu.id }}">
+    <button type="button"
+            class="project-delete-modal__backdrop"
+            popovertarget="delete-education-{{ edu.id }}"
+            popovertargetaction="hide"
+            aria-label="Close delete confirmation"></button>
+    <div class="project-delete-modal__content">
+        <button type="button"
+                class="project-delete-modal__close"
+                popovertarget="delete-education-{{ edu.id }}"
+                popovertargetaction="hide"
+                aria-label="Close delete confirmation">&times;</button>
+        <h2 id="delete-education-title-{{ edu.id }}">Delete Education?</h2>
+        <p>
+            Are you sure you want to delete
+            <strong>{{ edu.degree }} in {{ edu.field_of_study }}</strong> from <strong>{{ edu.institution }}</strong>?
+        </p>
+        <form method="post" action="{% url 'main:delete_education' edu.id %}" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 1.25rem; text-align: left;">
+                <label for="delete-password-edu-{{ edu.id }}" style="font-size: 0.9rem; font-weight: 700; color: var(--ink);">Secret Code:</label>
+                <input type="password"
+                       name="password"
+                       id="delete-password-edu-{{ edu.id }}"
+                       placeholder="Enter secret code"
+                       required
+                       class="project-search__input"
+                       style="margin-top: 0.35rem;"
+                       autocomplete="current-password">
+            </div>
+            <div class="project-delete-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="delete-education-{{ edu.id }}"
+                        popovertargetaction="hide">Cancel</button>
+                <button type="submit" class="button button-danger">Yes, Delete</button>
+            </div>
+        </form>
+    </div>
+</div>

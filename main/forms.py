@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.forms import ModelForm, TextInput, Textarea, URLInput, PasswordInput, NumberInput
-from main.models import Project, Education
+from main.models import Project, Education, Experience
 
 class ProjectForm(ModelForm):
     password = forms.CharField(
@@ -174,6 +174,97 @@ class EducationForm(ModelForm):
                 attrs={
                     "placeholder": "Describe your academic achievements, focus, or relevant coursework...",
                     "rows": 3,
+                }
+            ),
+        }
+
+    def __init__(self, *args, is_header_authorized=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_header_authorized = is_header_authorized
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.is_header_authorized:
+            password = cleaned_data.get("password")
+            secret_code = getattr(settings, "SECRET_CODE", "")
+            if not password:
+                self.add_error("password", "Secret code is required.")
+            elif not secret_code or password != secret_code:
+                self.add_error("password", "Incorrect secret code! Access denied.")
+        return cleaned_data
+
+
+class ExperienceForm(ModelForm):
+    password = forms.CharField(
+        widget=PasswordInput(
+            attrs={
+                "placeholder": "Enter secret code",
+                "autocomplete": "current-password",
+            }
+        ),
+        label="Secret Code",
+        required=False,
+    )
+
+    field_order = [
+        "title",
+        "category",
+        "description",
+        "thumbnail",
+        "started_at",
+        "ended_at",
+        "password",
+    ]
+
+    class Meta:
+        model = Experience
+        fields = [
+            "title",
+            "category",
+            "description",
+            "thumbnail",
+            "started_at",
+            "ended_at",
+        ]
+        labels = {
+            "title": "Role / Position Title",
+            "category": "Category",
+            "description": "Description / Responsibilities",
+            "thumbnail": "Thumbnail URL",
+            "started_at": "Start Date",
+            "ended_at": "End Date (Leave empty if ongoing)",
+        }
+        widgets = {
+            "title": TextInput(
+                attrs={
+                    "placeholder": "e.g. Asisten Dosen PBP",
+                    "maxlength": 255,
+                }
+            ),
+            "category": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Describe your role, responsibilities, and achievements...",
+                    "rows": 4,
+                }
+            ),
+            "thumbnail": URLInput(
+                attrs={
+                    "placeholder": "https://example.com/thumbnail.png",
+                }
+            ),
+            "started_at": forms.DateInput(
+                attrs={
+                    "type": "date",
+                }
+            ),
+            "ended_at": forms.DateInput(
+                attrs={
+                    "type": "date",
                 }
             ),
         }

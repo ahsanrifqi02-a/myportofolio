@@ -9,8 +9,13 @@
     <!-- Education Section -->
     <section class="section" id="education">
         <div class="container">
-            <div class="section-header">
+            <div class="project-header">
                 <h2 class="section-title">Education</h2>
+                <a href="{% url 'main:create_education' %}"
+                   class="button project-add-button">
+                    <span aria-hidden="true">+</span>
+                    Add Education
+                </a>
             </div>
             <div class="experience-list">
                 {% for edu in education_list %}
@@ -29,15 +34,20 @@
                                 <p class="exp-desc">{{ edu.description }}</p>
                             {% endif %}
                         </div>
-                        <div class="experience-chips" style="margin-top: 1rem;">
-                            {% if edu.gpa %}
-                                <span class="experience-chip">GPA: {{ edu.gpa }}</span>
-                            {% endif %}
-                            {% if edu.is_ongoing %}
-                                <span class="experience-chip">Ongoing</span>
-                            {% else %}
-                                <span class="experience-chip">Completed</span>
-                            {% endif %}
+                        <div class="project-card-actions">
+                            <div class="project-actions" style="justify-content: space-between;">
+                                <div class="experience-chips">
+                                    {% if edu.gpa %}
+                                        <span class="experience-chip">GPA: {{ edu.gpa }}</span>
+                                    {% endif %}
+                                    {% if edu.is_ongoing %}
+                                        <span class="experience-chip">Ongoing</span>
+                                    {% else %}
+                                        <span class="experience-chip">Completed</span>
+                                    {% endif %}
+                                </div>
+                                {% include "components/education_delete_modal.html" with edu=edu %}
+                            </div>
                         </div>
                     </article>
                 {% empty %}

@@ -1,0 +1,54 @@
+<p class="experience-status">
+    <button type="button"
+            class="button button-danger"
+            popovertarget="delete-experience-{{ experience.id }}"
+            aria-label="Delete {{ experience.title }}"
+            title="Delete experience">
+        Delete
+    </button>
+</p>
+<div id="delete-experience-{{ experience.id }}"
+     class="project-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-experience-title-{{ experience.id }}">
+    <button type="button"
+            class="project-delete-modal__backdrop"
+            popovertarget="delete-experience-{{ experience.id }}"
+            popovertargetaction="hide"
+            aria-label="Close delete confirmation"></button>
+    <div class="project-delete-modal__content">
+        <button type="button"
+                class="project-delete-modal__close"
+                popovertarget="delete-experience-{{ experience.id }}"
+                popovertargetaction="hide"
+                aria-label="Close delete confirmation">&times;</button>
+        <h2 id="delete-experience-title-{{ experience.id }}">Delete Experience?</h2>
+        <p>
+            Are you sure you want to delete
+            <strong>{{ experience.title }}</strong>?
+        </p>
+        <form method="post" action="{% url 'main:delete_experience' experience.id %}" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 1.25rem; text-align: left;">
+                <label for="delete-password-exp-{{ experience.id }}" style="font-size: 0.9rem; font-weight: 700; color: var(--ink);">Secret Code:</label>
+                <input type="password"
+                       name="password"
+                       id="delete-password-exp-{{ experience.id }}"
+                       placeholder="Enter secret code"
+                       required
+                       class="project-search__input"
+                       style="margin-top: 0.35rem;"
+                       autocomplete="current-password">
+            </div>
+            <div class="project-delete-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="delete-experience-{{ experience.id }}"
+                        popovertargetaction="hide">Cancel</button>
+                <button type="submit" class="button button-danger">Yes, Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
