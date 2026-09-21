@@ -16,7 +16,6 @@ class Experience(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
-    thumbnail = models.URLField(blank=True, null=True)
     started_at = models.DateField(blank=True, null=True)
     ended_at = models.DateField(blank=True, null=True)
     def __str__(self):
@@ -64,11 +63,11 @@ class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     institution = models.CharField(max_length=255)
     degree = models.CharField(max_length=100)
-    field_of_study = models.CharField(max_length=255)
+    field_of_study = models.CharField(max_length=255, blank=True)
     start_year = models.IntegerField()
     end_year = models.IntegerField(blank=True, null=True)
-    gpa = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
     description = models.TextField(blank=True)
+    logo_url = models.URLField(blank=True, null=True, max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

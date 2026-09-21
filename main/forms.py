@@ -104,8 +104,8 @@ class EducationForm(ModelForm):
         "field_of_study",
         "start_year",
         "end_year",
-        "gpa",
         "description",
+        "logo_url",
         "password",
     ]
 
@@ -117,17 +117,17 @@ class EducationForm(ModelForm):
             "field_of_study",
             "start_year",
             "end_year",
-            "gpa",
             "description",
+            "logo_url",
         ]
         labels = {
             "institution": "Institution / School",
-            "degree": "Degree / Certificate",
+            "degree": "Degree / Level",
             "field_of_study": "Field of Study / Major",
             "start_year": "Start Year",
             "end_year": "End Year",
-            "gpa": "GPA / Grade",
             "description": "Description / Activities",
+            "logo_url": "Logo / Image URL",
         }
         widgets = {
             "institution": TextInput(
@@ -138,13 +138,13 @@ class EducationForm(ModelForm):
             ),
             "degree": TextInput(
                 attrs={
-                    "placeholder": "Undergraduate (S1)",
+                    "placeholder": "Undergraduate Student / S1",
                     "maxlength": 100,
                 }
             ),
             "field_of_study": TextInput(
                 attrs={
-                    "placeholder": "Information Systems",
+                    "placeholder": "Information System (or leave blank if not applicable)",
                     "maxlength": 255,
                 }
             ),
@@ -162,18 +162,15 @@ class EducationForm(ModelForm):
                     "max": 2100,
                 }
             ),
-            "gpa": NumberInput(
-                attrs={
-                    "placeholder": "3.85",
-                    "step": "0.01",
-                    "min": 0,
-                    "max": 4,
-                }
-            ),
             "description": Textarea(
                 attrs={
-                    "placeholder": "Describe your academic achievements, focus, or relevant coursework...",
+                    "placeholder": "Describe your academic focus, activities, or achievements...",
                     "rows": 3,
+                }
+            ),
+            "logo_url": URLInput(
+                attrs={
+                    "placeholder": "https://example.com/logo.png (optional)",
                 }
             ),
         }
@@ -210,7 +207,6 @@ class ExperienceForm(ModelForm):
         "title",
         "category",
         "description",
-        "thumbnail",
         "started_at",
         "ended_at",
         "password",
@@ -222,7 +218,6 @@ class ExperienceForm(ModelForm):
             "title",
             "category",
             "description",
-            "thumbnail",
             "started_at",
             "ended_at",
         ]
@@ -230,7 +225,6 @@ class ExperienceForm(ModelForm):
             "title": "Role / Position Title",
             "category": "Category",
             "description": "Description / Responsibilities",
-            "thumbnail": "Thumbnail URL",
             "started_at": "Start Date",
             "ended_at": "End Date (Leave empty if ongoing)",
         }
@@ -250,11 +244,6 @@ class ExperienceForm(ModelForm):
                 attrs={
                     "placeholder": "Describe your role, responsibilities, and achievements...",
                     "rows": 4,
-                }
-            ),
-            "thumbnail": URLInput(
-                attrs={
-                    "placeholder": "https://example.com/thumbnail.png",
                 }
             ),
             "started_at": forms.DateInput(

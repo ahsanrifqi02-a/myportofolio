@@ -25,7 +25,6 @@ class MainTest(TestCase):
             field_of_study="Sistem Informasi",
             start_year=2024,
             end_year=2028,
-            gpa=3.85,
             description="Fokus pada rekayasa perangkat lunak dan sistem informasi korporat.",
         )
 
@@ -145,8 +144,9 @@ class MainTest(TestCase):
         self.assertContains(response, self.education.institution)
         self.assertContains(response, self.education.degree)
         self.assertContains(response, self.education.field_of_study)
-        self.assertContains(response, "3.85")
         self.assertContains(response, f'popovertarget="delete-education-{self.education.id}"')
+        self.assertContains(response, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+        self.assertContains(response, "Delete")
 
     def test_empty_education_page(self):
         Education.objects.all().delete()
@@ -164,8 +164,8 @@ class MainTest(TestCase):
             "field_of_study",
             "start_year",
             "end_year",
-            "gpa",
             "description",
+            "logo_url",
             "password",
         ]
         for field in expected_fields:
@@ -175,6 +175,7 @@ class MainTest(TestCase):
         self.assertNotIn("id", form.fields)
         self.assertNotIn("created_at", form.fields)
         self.assertNotIn("updated_at", form.fields)
+        self.assertNotIn("gpa", form.fields)
 
         # Test valid submission with password
         valid_data = {
@@ -183,8 +184,8 @@ class MainTest(TestCase):
             "field_of_study": "Natural Sciences (MIPA)",
             "start_year": 2021,
             "end_year": 2024,
-            "gpa": "3.90",
             "description": "Science competition participant.",
+            "logo_url": "https://example.com/logo.png",
             "password": "test-secret-123",
         }
         form = EducationForm(data=valid_data)
@@ -217,13 +218,55 @@ class MainTest(TestCase):
             "field_of_study": "Computer Science",
             "start_year": 2028,
             "end_year": 2030,
-            "gpa": "4.00",
             "description": "AI & Systems specialization",
             "password": "test-secret-123",
         }
         response = self.client.post(reverse("main:create_education"), data=data)
         self.assertRedirects(response, reverse("main:show_education"))
         self.assertTrue(Education.objects.filter(institution="Stanford University").exists())
+
+    def test_edit_education_get(self):
+        response = self.client.get(reverse("main:edit_education", kwargs={"education_id": self.education.id}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "education_form.html")
+        self.assertContains(response, "Edit Education")
+        self.assertContains(response, self.education.institution)
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_edit_education_post_success(self):
+        data = {
+            "institution": "Universitas Indonesia Updated",
+            "degree": "Sarjana (S1)",
+            "field_of_study": "Sistem Informasi",
+            "start_year": 2024,
+            "end_year": 2028,
+            "description": "Updated academic description",
+            "password": "test-secret-123",
+        }
+        response = self.client.post(
+            reverse("main:edit_education", kwargs={"education_id": self.education.id}),
+            data=data,
+        )
+        self.assertRedirects(response, reverse("main:show_education"))
+        self.education.refresh_from_db()
+        self.assertEqual(self.education.institution, "Universitas Indonesia Updated")
+
+    def test_edit_education_post_wrong_password(self):
+        data = {
+            "institution": "Hacked University",
+            "degree": "Sarjana (S1)",
+            "field_of_study": "Sistem Informasi",
+            "start_year": 2024,
+            "password": "wrong-password",
+        }
+        response = self.client.post(
+            reverse("main:edit_education", kwargs={"education_id": self.education.id}),
+            data=data,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Incorrect secret code! Access denied.")
+        self.education.refresh_from_db()
+        self.assertNotEqual(self.education.institution, "Hacked University")
 
     def test_create_experience_get(self):
         response = self.client.get(reverse("main:create_experience"))
@@ -237,7 +280,6 @@ class MainTest(TestCase):
             "title": "Backend Intern",
             "category": "internship",
             "description": "Building microservices with Django",
-            "thumbnail": "https://example.com/logo.png",
             "started_at": "2026-06-01",
             "ended_at": "2026-08-31",
             "password": "test-secret-123",

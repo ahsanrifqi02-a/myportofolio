@@ -158,6 +158,25 @@ def create_education(request):
     return render(request, "education_form.html", context)
 
 
+def edit_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+    is_auth = check_secret_code(request, post_key=None)
+    form = EducationForm(request.POST or None, instance=education, is_header_authorized=is_auth)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Education entry updated successfully!")
+        return redirect("main:show_education")
+
+    context = {
+        "name": "Ahsan",
+        "form": form,
+        "education": education,
+        "is_edit": True,
+    }
+    return render(request, "education_form.html", context)
+
+
 def create_experience(request):
     is_auth = check_secret_code(request, post_key=None)
     form = ExperienceForm(request.POST or None, is_header_authorized=is_auth)

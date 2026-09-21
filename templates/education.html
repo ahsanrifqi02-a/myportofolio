@@ -17,35 +17,32 @@
                     Add Education
                 </a>
             </div>
-            <div class="experience-list">
+            <div class="education-timeline">
                 {% for edu in education_list %}
-                    <article class="experience-card">
-                        <div class="exp-header">
-                            <div>
-                                <h3 class="exp-role">{{ edu.degree }} in {{ edu.field_of_study }}</h3>
-                                <p class="exp-org">{{ edu.institution }}</p>
+                    <article class="education-timeline-item">
+                        <div class="education-timeline-node">
+                            <div class="education-logo-box">
+                                {% if edu.logo_url %}
+                                    <img src="{{ edu.logo_url }}" alt="{{ edu.institution }}" class="education-logo-img">
+                                {% endif %}
                             </div>
-                            <span class="exp-period">
-                                {{ edu.start_year }} &ndash; {% if edu.is_ongoing %}Present{% else %}{{ edu.end_year }}{% endif %}
-                            </span>
                         </div>
-                        <div class="exp-body">
+                        <div class="education-timeline-content">
+                            <span class="education-degree">{{ edu.degree }}</span>
+                            <h3 class="education-institution">{{ edu.institution }}</h3>
+                            <p class="education-field">{{ edu.field_of_study|default:"-" }}</p>
+                            <p class="education-status">
+                                {% if edu.is_ongoing %}
+                                    Sedang berlangsung
+                                {% else %}
+                                    Selesai
+                                {% endif %}
+                            </p>
                             {% if edu.description %}
-                                <p class="exp-desc">{{ edu.description }}</p>
+                                <p class="education-description">{{ edu.description }}</p>
                             {% endif %}
-                        </div>
-                        <div class="project-card-actions">
-                            <div class="project-actions" style="justify-content: space-between;">
-                                <div class="experience-chips">
-                                    {% if edu.gpa %}
-                                        <span class="experience-chip">GPA: {{ edu.gpa }}</span>
-                                    {% endif %}
-                                    {% if edu.is_ongoing %}
-                                        <span class="experience-chip">Ongoing</span>
-                                    {% else %}
-                                        <span class="experience-chip">Completed</span>
-                                    {% endif %}
-                                </div>
+                            <div class="education-actions">
+                                <a href="{% url 'main:edit_education' edu.id %}" class="education-btn-edit">Edit</a>
                                 {% include "components/education_delete_modal.html" with edu=edu %}
                             </div>
                         </div>
