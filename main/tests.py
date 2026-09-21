@@ -424,6 +424,36 @@ class MainTest(TestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["fields"]["title"], "Living Green Lantern's Bird")
 
+    def test_get_education_json(self):
+        import json
+        response = self.client.get(reverse("main:get_education_json"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["content-type"], "application/json")
+        data = json.loads(response.content)
+        self.assertTrue(any(item["fields"]["institution"] == self.education.institution for item in data))
+
+    def test_get_education_json_filter(self):
+        import json
+        Education.objects.create(
+            institution="Oxford University",
+            degree="Master",
+            field_of_study="CS",
+            start_year=2025,
+        )
+        response = self.client.get(reverse("main:get_education_json") + "?institution=Oxford")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["fields"]["institution"], "Oxford University")
+
+    def test_get_experience_json(self):
+        import json
+        response = self.client.get(reverse("main:get_experience_json"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["content-type"], "application/json")
+        data = json.loads(response.content)
+        self.assertTrue(any(item["fields"]["title"] == self.experience.title for item in data))
+
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_project_with_password(self):
         from main.models import Project

@@ -39,11 +39,36 @@ def show_main(request):
     return render(request, "index.html", context)
 
 
+def get_education_json(request):
+    institution_query = request.GET.get("institution", "").strip()
+    education_list = Education.objects.all()
+    if institution_query:
+        education_list = education_list.filter(institution__icontains=institution_query)
+    education_json = serializers.serialize("json", education_list)
+    return HttpResponse(education_json, content_type="application/json")
+
+
+def get_experience_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experience_list = Experience.objects.all()
+    if title_query:
+        experience_list = experience_list.filter(title__icontains=title_query)
+    experience_json = serializers.serialize("json", experience_list)
+    return HttpResponse(experience_json, content_type="application/json")
+
+
 def show_education(request):
+    json_response = get_education_json(request)
+    education_items = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    education_list = [item.object for item in education_items]
+
     context = {
         "name": "Ahsan",
         "fullname": "Ahsan Rifqi Prasetyo",
-        "education_list": Education.objects.all(),
+        "education_list": education_list,
     }
     return render(request, "education.html", context)
 
