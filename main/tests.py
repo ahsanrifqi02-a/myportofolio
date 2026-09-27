@@ -631,7 +631,7 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:register"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "register.html")
-        self.assertContains(response, "Buat Akun")
+        self.assertContains(response, "Create Account")
         self.assertContains(response, 'name="username"')
 
     def test_register_view_post_success(self):
@@ -672,7 +672,7 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_main"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "2026-09-27 23:59:59")
-        self.assertContains(response, "Sesi Terakhir Login")
+        self.assertContains(response, "Last Login Session")
 
     def test_unauthenticated_cannot_create_project(self):
         response = self.client.get(reverse("main:create_project"))

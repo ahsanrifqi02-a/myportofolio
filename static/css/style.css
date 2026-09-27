@@ -1071,18 +1071,6 @@ html {
     height: 76px;
 }
 
-.education-timeline-item:not(:last-child) .education-timeline-node::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    bottom: -15rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    background-color: var(--accent);
-    z-index: 0;
-}
-
 .education-logo-box {
     position: relative;
     z-index: 1;
@@ -1115,8 +1103,6 @@ html {
     right: -3px;
     width: 12px;
     height: 12px;
-    border-bottom: 2px solid var(--accent);
-    border-right: 2px solid var(--accent);
     pointer-events: none;
 }
 

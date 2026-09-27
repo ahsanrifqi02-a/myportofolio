@@ -6,7 +6,7 @@
     <main>
         <section class="experience-section">
             <div class="container">
-                <h1>Buat Akun</h1>
+                <h1>Create Account</h1>
                 <form method="post" action="{% url 'main:register' %}" class="project-form">
                     {% csrf_token %}
                     {% for error in form.non_field_errors %}
@@ -24,9 +24,9 @@
                             {% endfor %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="button">Daftar</button>
+                    <button type="submit" class="button">Register</button>
                 </form>
-                <p>Sudah punya akun? <a href="{% url 'main:login' %}">Login di sini</a>.</p>
+                <p>Already have an account? <a href="{% url 'main:login' %}">Log in here</a>.</p>
             </div>
         </section>
     </main>
