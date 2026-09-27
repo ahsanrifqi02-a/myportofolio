@@ -1242,4 +1242,52 @@ html {
     }
 }
 
+/* Authentication & Star Styles (Tutorial 04) */
+.site-header .nav-menu .nav-user {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.star-form {
+    display: inline;
+}
+
+.button-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.button-star:hover {
+    border-color: var(--accent);
+}
+
+.button-star.is-starred {
+    background: var(--accent-dark);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.star-count {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+}
+
+
 

@@ -9,11 +9,13 @@
                 <p class="section-kicker">Projects that I've built</p>
                 <div class="project-header">
                     <h1>Projects</h1>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_project' %}"
                        class="button project-add-button">
                         <span aria-hidden="true">+</span>
                         Add Project
                     </a>
+                    {% endif %}
                 </div>
                 <form method="get"
                       action="{% url 'main:show_projects' %}"
@@ -45,7 +47,10 @@
                                            target="_blank"
                                            rel="noopener">View Project</a>
                                     {% endif %}
-                                    {% include "components/project_delete_modal.html" with project=project %}
+                                    {% include "components/project_star.html" with project=project %}
+                                    {% if user.is_superuser %}
+                                        {% include "components/project_delete_modal.html" with project=project %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </article>

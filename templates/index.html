@@ -4,82 +4,127 @@
 <title>Portfolio - Ahsan</title>
 {% endblock meta %}
 {% block content %} 
-    <main>
-        <!-- Home / Hero Section -->
-        <section class="hero" id="home">
-            <div class="container hero-grid">
-                <div class="hero-identity">
-                    <div class="hero-kicker-wrapper">
-                        <div>
-                            <div class="typing-container kicker-container" style="text-align: left;">
-                                <span class="hidden-placeholder hero-kicker">Web Portofolio</span>
-                                <span class="typing-text hero-kicker">Web Portofolio</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align: center;">
-                        <h1 class="typing-container h1-container">
-                            <span class="hidden-placeholder h1">{{ fullname }}</span>
-                            <span class="typing-text h1">{{ fullname }}</span>
-                        </h1>
-                    </div>
-                </div>
-                <div class="hero-details">
-                    
-                    <dl class="meta-list">
-                        <div class="meta-row">
-                            <dt>NPM</dt>
-                            <dd>
-                                <div class="typing-container meta-container">
-                                    <span class="hidden-placeholder">{{ npm }}</span>
-                                    <span class="typing-text meta-text-1">{{ npm }}</span>
-                                </div>
-                            </dd>
-                        </div>
-                        <div class="meta-row">
-                            <dt>Program</dt>
-                            <dd>
-                                <div class="typing-container meta-container">
-                                    <span class="hidden-placeholder">{{ study_program }}</span>
-                                    <span class="typing-text meta-text-2">{{ study_program }}</span>
-                                </div>
-                            </dd>
-                        </div>
-                    </dl>
-                    
-                </div>
-                <!-- Skills Showcase -->
+<main>
+    <!-- Home / Hero Section -->
+    <section class="hero" id="home">
+        <div class="container hero-grid">
+            <div class="hero-identity">
                 <div class="hero-kicker-wrapper">
                     <div>
                         <div class="typing-container kicker-container" style="text-align: left;">
-                            <span class="hidden-placeholder hero-kicker">Skills</span>
-                            <span class="typing-text hero-kicker">Skills</span>
+                            <span class="hidden-placeholder hero-kicker">Web Portofolio</span>
+                            <span class="typing-text hero-kicker">Web Portofolio</span>
                         </div>
                     </div>
                 </div>
-                <div class="hero-skills" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-                    <div class="skills-icons-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; align-items: center;">
-                        <div class="skill-icon-item" title="Python" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/python.svg' %}" alt="Python" width="36" height="36">
-                        </div>
-                        <div class="skill-icon-item" title="Django" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/django.svg' %}" alt="Django" width="36" height="36">
-                        </div>
-                        <div class="skill-icon-item" title="Java" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/java.svg' %}" alt="Java" width="36" height="36">
-                        </div>
-                        <div class="skill-icon-item" title="HTML5 & CSS3" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/html5.svg' %}" alt="HTML5" width="36" height="36">
-                        </div>
-                        <div class="skill-icon-item" title="CSS" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/css.svg' %}" alt="CSS" width="36" height="36">
-                        </div>
-                        <div class="skill-icon-item" title="Git" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <img src="{% static 'img/skills/git.svg' %}" alt="Git" width="36" height="36">
-                        </div>
+                <div style="text-align: center;">
+                    <h1 class="typing-container h1-container">
+                        <span class="hidden-placeholder h1">{{ fullname }}</span>
+                        <span class="typing-text h1">{{ fullname }}</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="hero-details">
+                
+                <dl class="meta-list">
+                    <div class="meta-row">
+                        <dt>NPM</dt>
+                        <dd>
+                            <div class="typing-container meta-container">
+                                <span class="hidden-placeholder">{{ npm }}</span>
+                                <span class="typing-text meta-text-1">{{ npm }}</span>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="meta-row">
+                        <dt>Program</dt>
+                        <dd>
+                            <div class="typing-container meta-container">
+                                <span class="hidden-placeholder">{{ study_program }}</span>
+                                <span class="typing-text meta-text-2">{{ study_program }}</span>
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="meta-row">
+                        <dt>Last Login Session</dt>
+                        <dd>{{ last_login }}</dd>
+                    </div>
+                </dl>
+                
+            </div>
+            <!-- Skills Showcase -->
+            <div class="hero-skills" style="margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                <div class="skills-icons-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.85rem; align-items: center;">
+                    <div class="skill-icon-item" title="Python" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/python.svg' %}" alt="Python" width="36" height="36">
+                    </div>
+                    <div class="skill-icon-item" title="Django" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/django.svg' %}" alt="Django" width="36" height="36">
+                    </div>
+                    <div class="skill-icon-item" title="Java" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/java.svg' %}" alt="Java" width="36" height="36">
+                    </div>
+                    <div class="skill-icon-item" title="HTML5 & CSS3" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/html5.svg' %}" alt="HTML5" width="36" height="36">
+                    </div>
+                    <div class="skill-icon-item" title="CSS" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/css.svg' %}" alt="CSS" width="36" height="36">
+                    </div>
+                    <div class="skill-icon-item" title="Git" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                        <img src="{% static 'img/skills/git.svg' %}" alt="Git" width="36" height="36">
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
-    {% endblock content %}
+        </div>
+    </section>
+    <!-- About Section -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About Me</h2>
+            </div>
+            <div class="profile-photo">
+                <div class="photo-block"></div>
+                <img class="avatar" src="{% static 'img/ahsan.jpg' %}" alt="Photo of Ahsan">
+            </div>
+            <div class="about-content">
+                <div class="bio" style="text-align: left; max-width: 100%; margin: 0;">
+                    <p class="bio-line">{{ bio }}</p>
+                    <ul class="exp-bullets" style="margin-top: 1.5rem;">
+                        <li><strong>Problem Solver:</strong> Passionate about tackling complex technical challenges with clean, efficient code.</li>
+                        <li><strong>Data-Driven:</strong> Adept at analyzing metrics to guide software architecture and business strategy.</li>
+                        <li><strong>Continuous Learner:</strong> Always exploring new frameworks, languages, and methodologies to stay on the cutting edge.</li>
+                        <li><strong>Focus:</strong> Data Science and IT Business</li>
+                        <li><strong>Based in:</strong> Jakarta, Indonesia</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>        
+    <!-- Contacts Section -->
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Contact</h2>
+            </div>
+            
+            <div class="contact-content" style="text-align: left; max-width: 600px;">
+                <p style="margin-bottom: 2rem; font-size: 1.1rem; color: var(--paper); opacity: 0.85;">Open for new opportunities and collaboration. Feel free to reach out via my email or social networks below.</p>
+                <div style="display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap;">
+                    <a href="https://github.com/ahsanrifqi02-a" class="btn-link" style="display: inline-flex; align-items: center; gap: 0.5rem;" target="_blank" rel="noopener">
+                        <img src="{% static 'img/github.svg' %}" alt="GitHub" width="16" height="16" style="filter: brightness(0);">
+                        GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/ahsan-rifqi-prasetyo-828022380/" class="btn-link" style="display: inline-flex; align-items: center; gap: 0.5rem;" target="_blank" rel="noopener">
+                        <img src="{% static 'img/linkedin.svg' %}" alt="LinkedIn" width="16" height="16" style="filter: brightness(0);">
+                        LinkedIn
+                    </a>
+                    <a href="mailto:ahsanrifqi02@gmail.com" class="btn-link secondary">
+                        Email Me
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock content %}

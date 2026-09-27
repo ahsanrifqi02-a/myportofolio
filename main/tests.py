@@ -1,12 +1,22 @@
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from main.models import Experience, Skill, Education
+from main.models import Experience, Skill, Education, Project
 
 
 class MainTest(TestCase):
     def setUp(self):
+        self.superuser = User.objects.create_superuser(
+            username="admin_test",
+            password="adminpassword123",
+            email="admin@test.com",
+        )
+        self.regular_user = User.objects.create_user(
+            username="user_test",
+            password="userpassword123",
+        )
         self.experience = Experience.objects.create(
             title="Asisten Dosen PBP",
             description="Membantu mahasiswa memahami pengembangan web.",
@@ -304,6 +314,7 @@ class MainTest(TestCase):
 
     # Project Tests (Tutorial 03 Langkah 1)
     def test_create_project_get(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:create_project"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "projects_form.html")
@@ -316,6 +327,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_create_project_post_success_with_password(self):
+        self.client.force_login(self.superuser)
         data = {
             "title": "Fern AI Assistant",
             "description": "Build personal AI Assistant",
@@ -331,6 +343,7 @@ class MainTest(TestCase):
         self.assertTrue(Project.objects.filter(title="Fern AI Assistant").exists())
 
     def test_create_project_post_wrong_password(self):
+        self.client.force_login(self.superuser)
         data = {
             "title": "Unauthorized Project",
             "description": "Should fail",
@@ -346,6 +359,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_create_project_post_with_header(self):
+        self.client.force_login(self.superuser)
         data = {
             "title": "Header Auth Project",
             "description": "Created with secret header",
@@ -456,6 +470,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_project_with_password(self):
+        self.client.force_login(self.superuser)
         from main.models import Project
         project = Project.objects.create(
             title="Temporary Project",
@@ -470,6 +485,7 @@ class MainTest(TestCase):
         self.assertFalse(Project.objects.filter(id=project.id).exists())
 
     def test_delete_project_wrong_password(self):
+        self.client.force_login(self.superuser)
         from main.models import Project
         project = Project.objects.create(
             title="Protected Project",
@@ -485,6 +501,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_project_with_header(self):
+        self.client.force_login(self.superuser)
         from main.models import Project
         project = Project.objects.create(
             title="API Deleted Project",
@@ -608,5 +625,156 @@ class MainTest(TestCase):
             data={"password": "test-secret-123"},
         )
         self.assertEqual(response.status_code, 404)
+
+    # Tutorial 04 Tests: Authentication, Sessions, Cookies & Authorization
+    def test_register_view_get(self):
+        response = self.client.get(reverse("main:register"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "register.html")
+        self.assertContains(response, "Buat Akun")
+        self.assertContains(response, 'name="username"')
+
+    def test_register_view_post_success(self):
+        data = {
+            "username": "newuser",
+            "password1": "StrongP@ssw0rd!",
+            "password2": "StrongP@ssw0rd!",
+        }
+        response = self.client.post(reverse("main:register"), data=data)
+        self.assertRedirects(response, reverse("main:login"))
+        self.assertTrue(User.objects.filter(username="newuser").exists())
+
+    def test_login_view_get(self):
+        response = self.client.get(reverse("main:login"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "login.html")
+        self.assertContains(response, "Login")
+
+    def test_login_user_post_sets_cookie_and_session(self):
+        data = {
+            "username": "user_test",
+            "password": "userpassword123",
+        }
+        response = self.client.post(reverse("main:login"), data=data)
+        self.assertRedirects(response, reverse("main:show_main"))
+        self.assertIn("last_login", response.cookies)
+        self.assertTrue(response.cookies["last_login"].value)
+
+    def test_logout_user_deletes_cookie(self):
+        self.client.force_login(self.regular_user)
+        self.client.cookies["last_login"] = "2026-09-27 12:00:00"
+        response = self.client.get(reverse("main:logout"))
+        self.assertRedirects(response, reverse("main:show_main"))
+        self.assertEqual(response.cookies["last_login"].value, "")
+
+    def test_show_main_displays_last_login_cookie(self):
+        self.client.cookies["last_login"] = "2026-09-27 23:59:59"
+        response = self.client.get(reverse("main:show_main"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "2026-09-27 23:59:59")
+        self.assertContains(response, "Sesi Terakhir Login")
+
+    def test_unauthenticated_cannot_create_project(self):
+        response = self.client.get(reverse("main:create_project"))
+        self.assertRedirects(response, f"{reverse('main:login')}?next={reverse('main:create_project')}")
+
+    def test_unauthenticated_cannot_delete_project(self):
+        project = Project.objects.create(
+            title="Unauth Delete",
+            description="Testing delete",
+            tech_stack="Django",
+        )
+        url = reverse("main:delete_project", kwargs={"project_id": project.id})
+        response = self.client.post(url, data={"password": "any"})
+        self.assertRedirects(response, f"{reverse('main:login')}?next={url}")
+
+    def test_regular_user_create_project_forbidden(self):
+        self.client.force_login(self.regular_user)
+        response = self.client.get(reverse("main:create_project"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_regular_user_delete_project_forbidden(self):
+        self.client.force_login(self.regular_user)
+        project = Project.objects.create(
+            title="Forbidden Delete",
+            description="Testing 403",
+            tech_stack="Django",
+        )
+        url = reverse("main:delete_project", kwargs={"project_id": project.id})
+        response = self.client.post(url, data={"password": "any"})
+        self.assertEqual(response.status_code, 403)
+
+    def test_toggle_star_authenticated(self):
+        project = Project.objects.create(
+            title="Starrable Project",
+            description="Testing star",
+            tech_stack="Django",
+        )
+        self.client.force_login(self.regular_user)
+        url = reverse("main:toggle_star", kwargs={"project_id": project.id})
+
+        # Add star
+        response = self.client.post(url)
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertTrue(project.starred_by.filter(id=self.regular_user.id).exists())
+
+        # Remove star
+        response = self.client.post(url)
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertFalse(project.starred_by.filter(id=self.regular_user.id).exists())
+
+    def test_toggle_star_unauthenticated(self):
+        project = Project.objects.create(
+            title="Unauth Star",
+            description="Testing unauth star",
+            tech_stack="Django",
+        )
+        url = reverse("main:toggle_star", kwargs={"project_id": project.id})
+        response = self.client.post(url)
+        self.assertRedirects(response, f"{reverse('main:login')}?next={url}")
+
+    def test_get_projects_json_natural_foreign_keys(self):
+        import json
+        project = Project.objects.create(
+            title="Natural Key Project",
+            description="Testing JSON",
+            tech_stack="Django",
+        )
+        project.starred_by.add(self.regular_user)
+
+        response = self.client.get(reverse("main:get_projects_json") + f"?title=Natural")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(len(data), 1)
+        # Should be list of natural keys [["username"]] rather than IDs [1]
+        self.assertEqual(data[0]["fields"]["starred_by"], [[self.regular_user.username]])
+
+    def test_project_page_ui_superuser_vs_regular_user(self):
+        project = Project.objects.create(
+            title="UI Project",
+            description="Testing UI",
+            tech_stack="Django",
+        )
+
+        # Anonymous: star visible, Add Project and delete button hidden
+        res_anon = self.client.get(reverse("main:show_projects"))
+        self.assertNotContains(res_anon, "Add Project")
+        self.assertNotContains(res_anon, f"delete-project-{project.id}")
+        self.assertContains(res_anon, "button-star")
+
+        # Regular user: star visible, Add Project and delete button hidden
+        self.client.force_login(self.regular_user)
+        res_user = self.client.get(reverse("main:show_projects"))
+        self.assertNotContains(res_user, "Add Project")
+        self.assertNotContains(res_user, f"delete-project-{project.id}")
+        self.assertContains(res_user, "button-star")
+
+        # Superuser: Add Project and delete button visible
+        self.client.force_login(self.superuser)
+        res_admin = self.client.get(reverse("main:show_projects"))
+        self.assertContains(res_admin, "Add Project")
+        self.assertContains(res_admin, f"delete-project-{project.id}")
+        self.assertContains(res_admin, "button-star")
+
 
 
