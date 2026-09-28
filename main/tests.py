@@ -71,6 +71,7 @@ class MainTest(TestCase):
         self.assertTrue(self.experience.is_ongoing)
 
     def test_experience_page(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:show_experience"))
 
         self.assertEqual(response.status_code, 200)
@@ -142,6 +143,7 @@ class MainTest(TestCase):
         self.assertTrue(ongoing_edu.is_ongoing)
 
     def test_education_url_is_accessible_and_uses_template(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")
@@ -149,6 +151,7 @@ class MainTest(TestCase):
         self.assertContains(response, "Add Education")
 
     def test_education_data_appears_on_page(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.education.institution)
@@ -775,6 +778,45 @@ class MainTest(TestCase):
         self.assertContains(res_admin, "Add Project")
         self.assertContains(res_admin, f"delete-project-{project.id}")
         self.assertContains(res_admin, "button-star")
+
+    def test_education_page_ui_superuser_vs_regular_user(self):
+        # Anonymous: Add Education, Edit, and Delete hidden
+        res_anon = self.client.get(reverse("main:show_education"))
+        self.assertNotContains(res_anon, "Add Education")
+        self.assertNotContains(res_anon, f"delete-education-{self.education.id}")
+        self.assertNotContains(res_anon, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+
+        # Regular user: Add Education, Edit, and Delete hidden
+        self.client.force_login(self.regular_user)
+        res_user = self.client.get(reverse("main:show_education"))
+        self.assertNotContains(res_user, "Add Education")
+        self.assertNotContains(res_user, f"delete-education-{self.education.id}")
+        self.assertNotContains(res_user, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+
+        # Superuser: Add Education, Edit, and Delete visible
+        self.client.force_login(self.superuser)
+        res_admin = self.client.get(reverse("main:show_education"))
+        self.assertContains(res_admin, "Add Education")
+        self.assertContains(res_admin, f"delete-education-{self.education.id}")
+        self.assertContains(res_admin, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+
+    def test_experience_page_ui_superuser_vs_regular_user(self):
+        # Anonymous: Add Experience and Delete hidden
+        res_anon = self.client.get(reverse("main:show_experience"))
+        self.assertNotContains(res_anon, "Add Experience")
+        self.assertNotContains(res_anon, f"delete-experience-{self.experience.id}")
+
+        # Regular user: Add Experience and Delete hidden
+        self.client.force_login(self.regular_user)
+        res_user = self.client.get(reverse("main:show_experience"))
+        self.assertNotContains(res_user, "Add Experience")
+        self.assertNotContains(res_user, f"delete-experience-{self.experience.id}")
+
+        # Superuser: Add Experience and Delete visible
+        self.client.force_login(self.superuser)
+        res_admin = self.client.get(reverse("main:show_experience"))
+        self.assertContains(res_admin, "Add Experience")
+        self.assertContains(res_admin, f"delete-experience-{self.experience.id}")
 
 
 

@@ -11,11 +11,13 @@
         <div class="container">
             <div class="project-header">
                 <h2 class="section-title">Education</h2>
+                {% if user.is_superuser %}
                 <a href="{% url 'main:create_education' %}"
                    class="button project-add-button">
                     <span aria-hidden="true">+</span>
                     Add Education
                 </a>
+                {% endif %}
             </div>
             <div class="education-timeline">
                 {% for edu in education_list %}
@@ -41,10 +43,12 @@
                             {% if edu.description %}
                                 <p class="education-description">{{ edu.description }}</p>
                             {% endif %}
+                            {% if user.is_superuser %}
                             <div class="education-actions">
                                 <a href="{% url 'main:edit_education' edu.id %}" class="education-btn-edit">Edit</a>
                                 {% include "components/education_delete_modal.html" with edu=edu %}
                             </div>
+                            {% endif %}
                         </div>
                     </article>
                 {% empty %}
