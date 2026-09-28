@@ -28,7 +28,9 @@ def check_secret_code(request, post_key="password"):
         return True
     return False
 
-
+# Fungsi agar tidak perlu mengulang syntax yang panjang
+def is_editor_or_superuser(user):
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name="Editor").exists())
 
 def show_main(request):
     last_login = request.COOKIES.get(
@@ -55,7 +57,7 @@ def get_education_json(request):
     education_list = Education.objects.all()
     if institution_query:
         education_list = education_list.filter(institution__icontains=institution_query)
-    education_json = serializers.serialize("json", education_list)
+    education_json = serializers.serialize("json", education_list, use_natural_foreign_keys=True)
     return HttpResponse(education_json, content_type="application/json")
 
 
@@ -64,7 +66,7 @@ def get_experience_json(request):
     experience_list = Experience.objects.all()
     if title_query:
         experience_list = experience_list.filter(title__icontains=title_query)
-    experience_json = serializers.serialize("json", experience_list)
+    experience_json = serializers.serialize("json", experience_list, use_natural_foreign_keys=True)
     return HttpResponse(experience_json, content_type="application/json")
 
 
@@ -75,11 +77,13 @@ def show_education(request):
         json_response.content.decode("utf-8"),
     )
     education_list = [item.object for item in education_items]
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name="Editor").exists()
 
     context = {
         "name": "Ahsan",
         "fullname": "Ahsan Rifqi Prasetyo",
         "education_list": education_list,
+        "is_editor": is_editor,
     }
     return render(request, "education.html", context)
 
@@ -130,7 +134,6 @@ def get_projects_json(request):
         projects = projects.filter(title__icontains=title_query)
     projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
     return HttpResponse(projects_json, content_type="application/json")
-
 
 def show_projects(request):
     json_response = get_projects_json(request)
@@ -192,8 +195,10 @@ def toggle_star(request, project_id):
             project.starred_by.add(request.user)
     return redirect("main:show_projects")
 
-
-def create_education(request):
+@login_required(login_url="/login/")
+def create_education(request): 
+    if not request.user.is_superuser:
+        raise PermissionDenied
     is_auth = check_secret_code(request, post_key=None)
     form = EducationForm(request.POST or None, is_header_authorized=is_auth)
 
@@ -208,8 +213,11 @@ def create_education(request):
     }
     return render(request, "education_form.html", context)
 
-
+@login_required(login_url="/login/")
 def edit_education(request, education_id):
+    if not is_editor_or_superuser(request.user):
+        raise PermissionDenied
+
     education = get_object_or_404(Education, pk=education_id)
     is_auth = check_secret_code(request, post_key=None)
     form = EducationForm(request.POST or None, instance=education, is_header_authorized=is_auth)
@@ -227,8 +235,11 @@ def edit_education(request, education_id):
     }
     return render(request, "education_form.html", context)
 
-
+@login_required(login_url="/login/")
 def create_experience(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     is_auth = check_secret_code(request, post_key=None)
     form = ExperienceForm(request.POST or None, is_header_authorized=is_auth)
 
@@ -243,8 +254,11 @@ def create_experience(request):
     }
     return render(request, "experience_form.html", context)
 
-
+@login_required(login_url="/login/")
 def delete_education(request, education_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
     education = get_object_or_404(Education, pk=education_id)
     if request.method == "POST":
         if check_secret_code(request, post_key="password"):
@@ -256,8 +270,10 @@ def delete_education(request, education_id):
             return redirect("main:show_education")
     return redirect("main:show_education")
 
-
+@login_required(login_url="/login/")
 def delete_experience(request, experience_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
     experience = get_object_or_404(Experience, pk=experience_id)
     if request.method == "POST":
         if check_secret_code(request, post_key="password"):

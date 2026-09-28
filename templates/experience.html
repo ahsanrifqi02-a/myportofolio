@@ -11,7 +11,7 @@
         <div class="container">
             <div class="project-header">
                 <h2 class="section-title">Experience</h2>
-                {% if user.is_superuser %}
+                {% if user.is_superuser or user.is_editor %}
                 <a href="{% url 'main:create_experience' %}"
                    class="button project-add-button">
                     <span aria-hidden="true">+</span>
@@ -67,7 +67,7 @@
                                         <span class="experience-chip">Selesai</span>
                                     {% endif %}
                                 </div>
-                                {% if user.is_superuser %}
+                                {% if user.is_superuser or user.is_editor %}
                                     {% include "components/experience_delete_modal.html" with experience=experience %}
                                 {% endif %}
                             </div>
