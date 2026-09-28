@@ -11,7 +11,7 @@
         <div class="container">
             <div class="project-header">
                 <h2 class="section-title">Education</h2>
-                {% if user.is_superuser or user.is_editor %}
+                {% if user.is_superuser %}
                 <a href="{% url 'main:create_education' %}"
                    class="button project-add-button">
                     <span aria-hidden="true">+</span>
@@ -43,12 +43,14 @@
                             {% if edu.description %}
                                 <p class="education-description">{{ edu.description }}</p>
                             {% endif %}
-                            {% if user.is_superuser or user.is_editor %}
                             <div class="education-actions">
-                                <a href="{% url 'main:edit_education' edu.id %}" class="education-btn-edit">Edit</a>
-                                {% include "components/education_delete_modal.html" with edu=edu %}
+                                {% if user.is_superuser or is_editor %}
+                                    <a href="{% url 'main:edit_education' edu.id %}" class="education-btn-edit">Edit</a>
+                                {% endif %}
+                                {% if user.is_superuser %}
+                                    {% include "components/education_delete_modal.html" with edu=edu %}
+                                {% endif %}
                             </div>
-                            {% endif %}
                         </div>
                     </article>
                 {% empty %}

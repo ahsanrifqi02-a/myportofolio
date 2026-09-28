@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -17,6 +17,12 @@ class MainTest(TestCase):
             username="user_test",
             password="userpassword123",
         )
+        self.editor_group, _ = Group.objects.get_or_create(name="Editor")
+        self.editor_user = User.objects.create_user(
+            username="editor_test",
+            password="editorpassword123",
+        )
+        self.editor_user.groups.add(self.editor_group)
         self.experience = Experience.objects.create(
             title="Asisten Dosen PBP",
             description="Membantu mahasiswa memahami pengembangan web.",
@@ -218,6 +224,7 @@ class MainTest(TestCase):
         self.assertTrue(header_form.is_valid())
 
     def test_create_education_get(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:create_education"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education_form.html")
@@ -225,6 +232,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_create_education_post_success(self):
+        self.client.force_login(self.superuser)
         data = {
             "institution": "Stanford University",
             "degree": "Master of Science",
@@ -239,6 +247,7 @@ class MainTest(TestCase):
         self.assertTrue(Education.objects.filter(institution="Stanford University").exists())
 
     def test_edit_education_get(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:edit_education", kwargs={"education_id": self.education.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education_form.html")
@@ -247,6 +256,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_edit_education_post_success(self):
+        self.client.force_login(self.superuser)
         data = {
             "institution": "Universitas Indonesia Updated",
             "degree": "Sarjana (S1)",
@@ -265,6 +275,7 @@ class MainTest(TestCase):
         self.assertEqual(self.education.institution, "Universitas Indonesia Updated")
 
     def test_edit_education_post_wrong_password(self):
+        self.client.force_login(self.superuser)
         data = {
             "institution": "Hacked University",
             "degree": "Sarjana (S1)",
@@ -282,6 +293,7 @@ class MainTest(TestCase):
         self.assertNotEqual(self.education.institution, "Hacked University")
 
     def test_create_experience_get(self):
+        self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:create_experience"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experience_form.html")
@@ -289,6 +301,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_create_experience_post_success(self):
+        self.client.force_login(self.superuser)
         data = {
             "title": "Backend Intern",
             "category": "internship",
@@ -520,6 +533,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_education_with_password(self):
+        self.client.force_login(self.superuser)
         edu = Education.objects.create(
             institution="Oxford University",
             degree="Master",
@@ -537,6 +551,7 @@ class MainTest(TestCase):
         self.assertContains(response, "Education entry deleted successfully!")
 
     def test_delete_education_wrong_password(self):
+        self.client.force_login(self.superuser)
         edu = Education.objects.create(
             institution="Cambridge University",
             degree="Master",
@@ -555,6 +570,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_education_with_header(self):
+        self.client.force_login(self.superuser)
         edu = Education.objects.create(
             institution="MIT",
             degree="PhD",
@@ -569,6 +585,7 @@ class MainTest(TestCase):
         self.assertFalse(Education.objects.filter(id=edu.id).exists())
 
     def test_delete_education_404(self):
+        self.client.force_login(self.superuser)
         import uuid
         response = self.client.post(
             reverse("main:delete_education", kwargs={"education_id": uuid.uuid4()}),
@@ -578,6 +595,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_experience_with_password(self):
+        self.client.force_login(self.superuser)
         exp = Experience.objects.create(
             title="Software Engineering Intern",
             description="Working on backend systems.",
@@ -593,6 +611,7 @@ class MainTest(TestCase):
         self.assertContains(response, "Experience entry deleted successfully!")
 
     def test_delete_experience_wrong_password(self):
+        self.client.force_login(self.superuser)
         exp = Experience.objects.create(
             title="Teaching Assistant",
             description="Teaching Python programming.",
@@ -609,6 +628,7 @@ class MainTest(TestCase):
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_delete_experience_with_header(self):
+        self.client.force_login(self.superuser)
         exp = Experience.objects.create(
             title="Research Assistant",
             description="AI lab research.",
@@ -622,6 +642,7 @@ class MainTest(TestCase):
         self.assertFalse(Experience.objects.filter(id=exp.id).exists())
 
     def test_delete_experience_404(self):
+        self.client.force_login(self.superuser)
         import uuid
         response = self.client.post(
             reverse("main:delete_experience", kwargs={"experience_id": uuid.uuid4()}),
@@ -817,6 +838,102 @@ class MainTest(TestCase):
         res_admin = self.client.get(reverse("main:show_experience"))
         self.assertContains(res_admin, "Add Experience")
         self.assertContains(res_admin, f"delete-experience-{self.experience.id}")
+
+    # Assignment 4 Tests: 4-Role Authorization on Tugas 3 (Education & Experience)
+    def test_unauthenticated_cannot_create_or_edit_or_delete_education(self):
+        # Create
+        create_url = reverse("main:create_education")
+        res_create = self.client.get(create_url)
+        self.assertRedirects(res_create, f"{reverse('main:login')}?next={create_url}")
+
+        # Edit
+        edit_url = reverse("main:edit_education", kwargs={"education_id": self.education.id})
+        res_edit = self.client.get(edit_url)
+        self.assertRedirects(res_edit, f"{reverse('main:login')}?next={edit_url}")
+
+        # Delete
+        delete_url = reverse("main:delete_education", kwargs={"education_id": self.education.id})
+        res_delete = self.client.post(delete_url, data={"password": "any"})
+        self.assertRedirects(res_delete, f"{reverse('main:login')}?next={delete_url}")
+
+    def test_regular_user_cannot_create_or_edit_or_delete_education(self):
+        self.client.force_login(self.regular_user)
+
+        # Create -> 403
+        res_create = self.client.get(reverse("main:create_education"))
+        self.assertEqual(res_create.status_code, 403)
+
+        # Edit -> 403
+        edit_url = reverse("main:edit_education", kwargs={"education_id": self.education.id})
+        res_edit = self.client.get(edit_url)
+        self.assertEqual(res_edit.status_code, 403)
+
+        # Delete -> 403
+        delete_url = reverse("main:delete_education", kwargs={"education_id": self.education.id})
+        res_delete = self.client.post(delete_url, data={"password": "any"})
+        self.assertEqual(res_delete.status_code, 403)
+
+    @override_settings(SECRET_CODE="test-secret-123")
+    def test_editor_user_can_edit_education(self):
+        self.client.force_login(self.editor_user)
+        edit_url = reverse("main:edit_education", kwargs={"education_id": self.education.id})
+
+        # GET edit form is accessible
+        res_get = self.client.get(edit_url)
+        self.assertEqual(res_get.status_code, 200)
+
+        # POST edit saves successfully
+        data = {
+            "institution": "Editor Updated UI",
+            "degree": "Sarjana (S1)",
+            "field_of_study": "Sistem Informasi",
+            "start_year": 2024,
+            "end_year": 2028,
+            "description": "Updated by editor",
+            "password": "test-secret-123",
+        }
+        res_post = self.client.post(edit_url, data=data)
+        self.assertRedirects(res_post, reverse("main:show_education"))
+        self.education.refresh_from_db()
+        self.assertEqual(self.education.institution, "Editor Updated UI")
+
+    def test_editor_user_cannot_create_or_delete_education(self):
+        self.client.force_login(self.editor_user)
+
+        # Create -> 403
+        res_create = self.client.get(reverse("main:create_education"))
+        self.assertEqual(res_create.status_code, 403)
+
+        # Delete -> 403
+        delete_url = reverse("main:delete_education", kwargs={"education_id": self.education.id})
+        res_delete = self.client.post(delete_url, data={"password": "any"})
+        self.assertEqual(res_delete.status_code, 403)
+
+    def test_editor_user_cannot_create_or_delete_experience(self):
+        self.client.force_login(self.editor_user)
+
+        # Create -> 403
+        res_create = self.client.get(reverse("main:create_experience"))
+        self.assertEqual(res_create.status_code, 403)
+
+        # Delete -> 403
+        delete_url = reverse("main:delete_experience", kwargs={"experience_id": self.experience.id})
+        res_delete = self.client.post(delete_url, data={"password": "any"})
+        self.assertEqual(res_delete.status_code, 403)
+
+    def test_education_ui_editor_role(self):
+        self.client.force_login(self.editor_user)
+        res = self.client.get(reverse("main:show_education"))
+        self.assertEqual(res.status_code, 200)
+
+        # Editor can see Edit button
+        edit_url = reverse("main:edit_education", kwargs={"education_id": self.education.id})
+        self.assertContains(res, f'href="{edit_url}"')
+
+        # Editor CANNOT see Add Education or Delete
+        self.assertNotContains(res, "Add Education")
+        self.assertNotContains(res, f"delete-education-{self.education.id}")
+
 
 
 
