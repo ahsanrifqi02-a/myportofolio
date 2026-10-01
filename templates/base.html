@@ -22,8 +22,8 @@
 
             <nav class="nav-menu">
                 <a href="{% url 'main:show_main' %}">Home</a>
-                <a href="/#about">About</a>
-                <a href="/#contact">Contact</a>
+                <a href="{% url 'main:show_main' %}#about">About</a>
+                <a href="{% url 'main:show_main' %}#contact">Contact</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
                 <a href="{% url 'main:show_education' %}">Education</a>
                 <a href="{% url 'main:show_projects' %}">Projects</a>
@@ -52,5 +52,6 @@
           <p>&copy; 2026 {{ fullname|default:name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
       </div>
   </footer>
+      {% include 'components/toast.html' %}
 </body>
 </html>

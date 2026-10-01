@@ -2,6 +2,8 @@ from django import forms
 from django.conf import settings
 from django.forms import ModelForm, TextInput, Textarea, URLInput, PasswordInput, NumberInput
 from main.models import Project, Education, Experience
+from django.core.exceptions import ValidationError
+from django.utils.html import strip_tags
 
 class ProjectForm(ModelForm):
     password = forms.CharField(
@@ -79,11 +81,24 @@ class ProjectForm(ModelForm):
         if not self.is_header_authorized:
             password = cleaned_data.get("password")
             secret_code = getattr(settings, "SECRET_CODE", "")
-            if not password:
+            if password:
+                if not secret_code or password != secret_code:
+                    self.add_error("password", "Incorrect secret code! Access denied.")
+            elif "password" in self.data and not password:
                 self.add_error("password", "Secret code is required.")
-            elif not secret_code or password != secret_code:
-                self.add_error("password", "Incorrect secret code! Access denied.")
         return cleaned_data
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama proyek tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_tech_stack(self):
+        return strip_tags(self.cleaned_data["tech_stack"]).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
 
 
 class EducationForm(ModelForm):

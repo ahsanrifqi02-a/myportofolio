@@ -51,20 +51,20 @@ class MainTest(TestCase):
         self.assertTemplateUsed(response, "index.html")
         self.assertNotContains(response, self.experience.title)
         self.assertContains(response, f'href="{reverse("main:show_experience")}"')
-        self.assertContains(response, f'href="{reverse("main:show_about")}"')
         self.assertContains(response, f'href="{reverse("main:show_education")}"')
-        self.assertContains(response, f'href="{reverse("main:show_contact")}"')
+        self.assertContains(response, 'href="/#about"')
+        self.assertContains(response, 'href="/#contact"')
+        self.assertContains(response, "About Me")
+        self.assertContains(response, "Contact")
         self.assertContains(response, "Python")
         self.assertContains(response, "Django")
 
-
-    def test_about_page(self):
-        response = self.client.get(reverse("main:show_about"))
-
+    def test_about_section_on_main_page(self):
+        response = self.client.get(reverse("main:show_main"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "about.html")
+        self.assertContains(response, 'id="about"')
         self.assertContains(response, "About Me")
-        self.assertContains(response, f'href="{reverse("main:show_main")}"')
+        self.assertContains(response, "Information Systems")
 
     def test_nonexistent_page_returns_404(self):
         response = self.client.get("/halaman-yang-tidak-ada/")
@@ -317,16 +317,15 @@ class MainTest(TestCase):
         self.assertEqual(str(created.started_at), "2026-06-01")
         self.assertEqual(str(created.ended_at), "2026-08-31")
 
-    def test_contact_page(self):
-        response = self.client.get(reverse("main:show_contact"))
+    def test_contact_section_on_main_page(self):
+        response = self.client.get(reverse("main:show_main"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "contact.html")
+        self.assertContains(response, 'id="contact"')
         self.assertContains(response, "Contact")
         self.assertContains(response, "GitHub")
         self.assertContains(response, "LinkedIn")
         self.assertContains(response, "mailto:ahsanrifqi02@gmail.com")
-        self.assertContains(response, f'href="{reverse("main:show_main")}"')
 
     # Project Tests (Tutorial 03 Langkah 1)
     def test_create_project_get(self):
@@ -401,8 +400,9 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_projects"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "project.html")
-        self.assertContains(response, "Portfolio Website")
         self.assertContains(response, "Projects")
+        self.assertContains(response, 'id="grid"')
+        self.assertContains(response, 'id="loading"')
 
     def test_show_projects_search(self):
         from main.models import Project
@@ -418,8 +418,7 @@ class MainTest(TestCase):
         )
         response = self.client.get(reverse("main:show_projects") + "?title=Fern")
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Fern AI Assistant")
-        self.assertNotContains(response, "Living Green Lantern's Bird")
+        self.assertContains(response, 'value="Fern"')
 
     def test_get_projects_json(self):
         from main.models import Project
@@ -780,41 +779,137 @@ class MainTest(TestCase):
             tech_stack="Django",
         )
 
-        # Anonymous: star visible, Add Project and delete button hidden
         res_anon = self.client.get(reverse("main:show_projects"))
-        self.assertNotContains(res_anon, "Add Project")
-        self.assertNotContains(res_anon, f"delete-project-{project.id}")
-        self.assertContains(res_anon, "button-star")
+        self.assertNotContains(res_anon, "popovertarget=\"add-project-modal\"")
+        self.assertNotContains(res_anon, "id=\"add-project-modal\"")
+        self.assertContains(res_anon, "id=\"grid\"")
+        self.assertContains(res_anon, "id=\"loading\"")
 
-        # Regular user: star visible, Add Project and delete button hidden
         self.client.force_login(self.regular_user)
         res_user = self.client.get(reverse("main:show_projects"))
-        self.assertNotContains(res_user, "Add Project")
-        self.assertNotContains(res_user, f"delete-project-{project.id}")
-        self.assertContains(res_user, "button-star")
+        self.assertNotContains(res_user, "popovertarget=\"add-project-modal\"")
+        self.assertNotContains(res_user, "id=\"add-project-modal\"")
 
-        # Superuser: Add Project and delete button visible
         self.client.force_login(self.superuser)
         res_admin = self.client.get(reverse("main:show_projects"))
-        self.assertContains(res_admin, "Add Project")
-        self.assertContains(res_admin, f"delete-project-{project.id}")
-        self.assertContains(res_admin, "button-star")
+        self.assertContains(res_admin, "popovertarget=\"add-project-modal\"")
+        self.assertContains(res_admin, "id=\"add-project-modal\"")
+
+    # Tutorial 05 Tests: Web Interactivity with JavaScript & AJAX
+    def test_get_projects_json_ajax_format_and_star_status(self):
+        import json
+        project = Project.objects.create(
+            title="Interactive App",
+            description="Testing AJAX JSON format",
+            tech_stack="JavaScript, Django",
+            project_url="https://example.com",
+            project_image_url="https://example.com/img.png",
+        )
+        project.starred_by.add(self.regular_user)
+
+        res = self.client.get(reverse("main:get_projects_json"))
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        self.assertEqual(len(data), 1)
+        item = data[0]
+        self.assertEqual(item["pk"], str(project.id))
+        self.assertEqual(item["fields"]["title"], "Interactive App")
+        self.assertEqual(item["fields"]["star_count"], 1)
+        self.assertFalse(item["fields"]["is_starred"])
+        self.assertEqual(item["fields"]["starred_by_names"], self.regular_user.username)
+
+        self.client.force_login(self.regular_user)
+        res_auth = self.client.get(reverse("main:get_projects_json"))
+        data_auth = json.loads(res_auth.content)
+        self.assertTrue(data_auth[0]["fields"]["is_starred"])
+
+    def test_create_project_ajax_superuser_success(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "AJAX Portfolio Project",
+            "description": "Built using Fetch API",
+            "tech_stack": "Django, JS, CSS",
+            "project_url": "https://github.com/example/ajax-project",
+            "project_image_url": "https://example.com/ajax.jpg",
+        }
+        response = self.client.post(reverse("main:create_project_ajax"), data=data)
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        self.assertEqual(response_json["message"], "Proyek berhasil ditambahkan.")
+        self.assertTrue(Project.objects.filter(id=response_json["pk"]).exists())
+
+    def test_create_project_ajax_forbidden_non_superuser(self):
+        data = {
+            "title": "Anon Project",
+            "description": "Should fail",
+            "tech_stack": "Python",
+        }
+        res_anon = self.client.post(reverse("main:create_project_ajax"), data=data)
+        self.assertEqual(res_anon.status_code, 403)
+
+        self.client.force_login(self.regular_user)
+        res_user = self.client.post(reverse("main:create_project_ajax"), data=data)
+        self.assertEqual(res_user.status_code, 403)
+
+    def test_create_project_ajax_validation_error(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "",
+            "description": "No title",
+            "tech_stack": "Django",
+            "project_url": "invalid-url-format",
+        }
+        response = self.client.post(reverse("main:create_project_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("errors", response.json())
+
+    def test_create_project_ajax_xss_protection(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "<img src=\"x\" onerror=\"alert('XSS!')\">",
+            "description": "Testing XSS",
+            "tech_stack": "Python",
+        }
+        response = self.client.post(reverse("main:create_project_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title", response.json()["errors"])
+
+        data_clean = {
+            "title": "Clean Project",
+            "description": "Hello <b>world</b>",
+            "tech_stack": "Django <em>&</em> Python",
+        }
+        response_clean = self.client.post(reverse("main:create_project_ajax"), data=data_clean)
+        self.assertEqual(response_clean.status_code, 201)
+        created_project = Project.objects.get(id=response_clean.json()["pk"])
+        self.assertEqual(created_project.description, "Hello world")
+        self.assertEqual(created_project.tech_stack, "Django & Python")
+
+    def test_delete_project_superuser_direct_ajax_style(self):
+        self.client.force_login(self.superuser)
+        project = Project.objects.create(
+            title="Direct Delete Project",
+            description="Testing direct delete",
+            tech_stack="Python",
+        )
+        response = self.client.post(
+            reverse("main:delete_project", kwargs={"project_id": project.id})
+        )
+        self.assertRedirects(response, reverse("main:show_projects"))
+        self.assertFalse(Project.objects.filter(id=project.id).exists())
 
     def test_education_page_ui_superuser_vs_regular_user(self):
-        # Anonymous: Add Education, Edit, and Delete hidden
         res_anon = self.client.get(reverse("main:show_education"))
         self.assertNotContains(res_anon, "Add Education")
         self.assertNotContains(res_anon, f"delete-education-{self.education.id}")
         self.assertNotContains(res_anon, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
 
-        # Regular user: Add Education, Edit, and Delete hidden
         self.client.force_login(self.regular_user)
         res_user = self.client.get(reverse("main:show_education"))
         self.assertNotContains(res_user, "Add Education")
         self.assertNotContains(res_user, f"delete-education-{self.education.id}")
         self.assertNotContains(res_user, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
 
-        # Superuser: Add Education, Edit, and Delete visible
         self.client.force_login(self.superuser)
         res_admin = self.client.get(reverse("main:show_education"))
         self.assertContains(res_admin, "Add Education")
@@ -822,18 +917,15 @@ class MainTest(TestCase):
         self.assertContains(res_admin, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
 
     def test_experience_page_ui_superuser_vs_regular_user(self):
-        # Anonymous: Add Experience and Delete hidden
         res_anon = self.client.get(reverse("main:show_experience"))
         self.assertNotContains(res_anon, "Add Experience")
         self.assertNotContains(res_anon, f"delete-experience-{self.experience.id}")
 
-        # Regular user: Add Experience and Delete hidden
         self.client.force_login(self.regular_user)
         res_user = self.client.get(reverse("main:show_experience"))
         self.assertNotContains(res_user, "Add Experience")
         self.assertNotContains(res_user, f"delete-experience-{self.experience.id}")
 
-        # Superuser: Add Experience and Delete visible
         self.client.force_login(self.superuser)
         res_admin = self.client.get(reverse("main:show_experience"))
         self.assertContains(res_admin, "Add Experience")
