@@ -12,74 +12,272 @@
             <div class="project-header">
                 <h2 class="section-title">Experience</h2>
                 {% if user.is_superuser %}
-                <a href="{% url 'main:create_experience' %}"
-                   class="button project-add-button">
+                <button type="button"
+                        class="button project-add-button"
+                        popovertarget="add-experience-modal">
                     <span aria-hidden="true">+</span>
                     Add Experience
-                </a>
+                </button>
                 {% endif %}
             </div>
-            <div class="experience-list">
-                {% for experience in experience_list %}
-                    <article class="experience-card">
-                        <div class="exp-header">
-                            <div>
-                                <h3 class="exp-role">{{ experience.title }}</h3>
-                                <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia <span class="exp-location">@Depok, Jawa Barat</span></p>
-                            </div>
-                            <span class="exp-period">
-                                {% if "Dasar-Dasar Pemrograman" in experience.title %}
-                                    Jul 2026 &ndash; Aug 2026
-                                {% elif "Open House" in experience.title %}
-                                    Nov 2025
-                                {% elif experience.started_at and experience.ended_at %}
-                                    {{ experience.started_at|date:"M Y" }} &ndash; {{ experience.ended_at|date:"M Y" }}
-                                {% elif experience.started_at and experience.is_ongoing %}
-                                    {{ experience.started_at|date:"M Y" }} &ndash; Present
-                                {% elif experience.is_ongoing %}
-                                    Sedang berlangsung
-                                {% else %}
-                                    Selesai
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="exp-body">
-                            <p class="exp-desc">{{ experience.description }}</p>
-                            {% if "Dasar-Dasar Pemrograman" in experience.title %}
-                                <ul class="exp-bullets">
-                                    <li><strong>Core Instruction:</strong> Facilitated weekly lab sessions covering procedural programming, data structures (lists, dictionaries, sets), recursion, and basic algorithmic thinking.</li>
-                                    <li><strong>Hands-On Mentorship:</strong> Provided live, step-by-step code reviews and debugging support, teaching students how to read tracebacks and approach syntax and logic errors systematically.</li>
-                                </ul>
-                            {% elif "Open House" in experience.title %}
-                                <ul class="exp-bullets">
-                                    <li><strong>Fundamental Concepts:</strong> Taught computational thinking, variables, conditional statements, and loops using interactive, visual coding exercises.</li>
-                                    <li><strong>Practical Application:</strong> Guided students through building simple terminal programs and text-based games, reinforcing logic design and creative problem-solving.</li>
-                                </ul>
-                            {% endif %}
-                        </div>
-                        <div class="project-card-actions">
-                            <div class="project-actions" style="justify-content: space-between;">
-                                <div class="experience-chips">
-                                    <span class="experience-chip">{{ experience.get_category_display }}</span>
-                                    {% if experience.is_ongoing %}
-                                        <span class="experience-chip">Sedang berlangsung</span>
-                                    {% else %}
-                                        <span class="experience-chip">Selesai</span>
-                                    {% endif %}
-                                </div>
-                                {% if user.is_superuser %}
-                                    {% include "components/experience_delete_modal.html" with experience=experience %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">
-                        Belum ada pengalaman yang ditambahkan.
-                    </p>
-                {% endfor %}
+
+            <form id="experience-search-form" class="project-search">
+                <input type="search"
+                       id="search-input"
+                       name="title"
+                       value="{{ title_query }}"
+                       placeholder="Search by role or category"
+                       class="project-search__input"
+                       aria-label="Search experience">
+            </form>
+
+            <div id="loading" class="empty-state hide">
+                <p>Loading experiences...</p>
             </div>
+
+            <div id="error" class="empty-state hide">
+                <p>Failed to load experience data. Please try again.</p>
+            </div>
+
+            <div id="empty" class="empty-state hide">
+                <p>Belum ada pengalaman yang ditambahkan.</p>
+            </div>
+
+            <div id="experience-list" class="experience-list hide"></div>
         </div>
     </section>
 </main>
+
+{% if user.is_superuser %}
+    {% include "components/experience_form_modal.html" %}
+{% endif %}
+
+<script>
+    const BASE_EXPERIENCE_ENDPOINT = "{% url 'main:get_experience_json' %}";
+    const CREATE_EXPERIENCE_ENDPOINT = "{% url 'main:create_experience_ajax' %}";
+    const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+    let experienceAbortController;
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    let searchDebounceTimer;
+
+    const loadingState = document.getElementById('loading');
+    const errorState = document.getElementById('error');
+    const emptyState = document.getElementById('empty');
+    const listContainer = document.getElementById('experience-list');
+    const searchForm = document.getElementById('experience-search-form');
+    const searchInput = document.getElementById('search-input');
+    const experienceForm = document.getElementById('experience-form');
+
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showList = false }) {
+        loadingState.classList.toggle('hide', !showLoading);
+        errorState.classList.toggle('hide', !showError);
+        emptyState.classList.toggle('hide', !showEmpty);
+        listContainer.classList.toggle('hide', !showList);
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function formatPeriod(exp) {
+        if (exp.title.includes("Dasar-Dasar Pemrograman")) {
+            return "Jul 2026 &ndash; Aug 2026";
+        } else if (exp.title.includes("Open House")) {
+            return "Nov 2025";
+        } else if (exp.started_at && exp.ended_at) {
+            return `${escapeHtml(exp.started_at)} &ndash; ${escapeHtml(exp.ended_at)}`;
+        } else if (exp.started_at && exp.is_ongoing) {
+            return `${escapeHtml(exp.started_at)} &ndash; Present`;
+        } else if (exp.is_ongoing) {
+            return "Sedang berlangsung";
+        } else {
+            return "Selesai";
+        }
+    }
+
+    function buildExperienceCardElement(item) {
+        const exp = item.fields;
+        const expId = item.pk;
+
+        const articleElement = document.createElement('article');
+        articleElement.className = 'experience-card';
+
+        const periodHtml = formatPeriod(exp);
+        const statusChip = exp.is_ongoing
+            ? '<span class="experience-chip">Sedang berlangsung</span>'
+            : '<span class="experience-chip">Selesai</span>';
+
+        const deleteUrl = "{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', expId);
+
+        const deleteHtml = IS_SUPERUSER
+            ? `<form method="post" action="${deleteUrl}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger" onclick="return confirm('Are you sure you want to delete this experience entry?');">Delete</button>
+               </form>`
+            : '';
+
+        let extraBullets = '';
+        if (exp.title.includes("Dasar-Dasar Pemrograman")) {
+            extraBullets = `
+                <ul class="exp-bullets">
+                    <li><strong>Core Instruction:</strong> Facilitated weekly lab sessions covering procedural programming, data structures, recursion, and algorithmic thinking.</li>
+                    <li><strong>Hands-On Mentorship:</strong> Provided live code reviews and debugging support.</li>
+                </ul>
+            `;
+        } else if (exp.title.includes("Open House")) {
+            extraBullets = `
+                <ul class="exp-bullets">
+                    <li><strong>Fundamental Concepts:</strong> Taught computational thinking, variables, conditional statements, and loops.</li>
+                    <li><strong>Practical Application:</strong> Guided students through building simple terminal programs.</li>
+                </ul>
+            `;
+        }
+
+        articleElement.innerHTML = `
+            <div class="exp-header">
+                <div>
+                    <h3 class="exp-role">${escapeHtml(exp.title)}</h3>
+                    <p class="exp-org">Fakultas Ilmu Komputer Universitas Indonesia <span class="exp-location">@Depok, Jawa Barat</span></p>
+                </div>
+                <span class="exp-period">${periodHtml}</span>
+            </div>
+            <div class="exp-body">
+                <p class="exp-desc">${escapeHtml(exp.description)}</p>
+                ${extraBullets}
+            </div>
+            <div class="project-card-actions">
+                <div class="project-actions" style="justify-content: space-between;">
+                    <div class="experience-chips">
+                        <span class="experience-chip">${escapeHtml(exp.category_display || exp.category)}</span>
+                        ${statusChip}
+                    </div>
+                    ${deleteHtml}
+                </div>
+            </div>
+        `;
+        return articleElement;
+    }
+
+    async function fetchExperience(searchQuery = "") {
+        if (experienceAbortController) experienceAbortController.abort();
+        experienceAbortController = new AbortController();
+
+        try {
+            displayPageSection({ showLoading: true });
+
+            const url = searchQuery
+                ? `${BASE_EXPERIENCE_ENDPOINT}?title=${encodeURIComponent(searchQuery)}`
+                : BASE_EXPERIENCE_ENDPOINT;
+
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' },
+                signal: experienceAbortController.signal,
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const experienceData = await response.json();
+
+            if (experienceData.length === 0) {
+                displayPageSection({ showEmpty: true });
+            } else {
+                listContainer.innerHTML = '';
+                experienceData.forEach(item => {
+                    listContainer.appendChild(buildExperienceCardElement(item));
+                });
+                displayPageSection({ showList: true });
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error('Error loading experience:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    function searchExperience() {
+        fetchExperience(searchInput.value.trim());
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function() {
+                searchExperience();
+            }, SEARCH_DEBOUNCE_DELAY);
+        });
+    }
+
+    if (searchForm) {
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            clearTimeout(searchDebounceTimer);
+            searchExperience();
+        });
+    }
+
+    function closeExperienceModal() {
+        const modal = document.getElementById("add-experience-modal");
+        if (modal) modal.hidePopover();
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function addExperience(event) {
+        event.preventDefault();
+        const submitButton = experienceForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_EXPERIENCE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(experienceForm),
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                experienceForm.reset();
+                closeExperienceModal();
+                showToast('Success', 'New experience added successfully!', 'success');
+                fetchExperience(searchInput ? searchInput.value.trim() : "");
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `An error occurred (status ${response.status}).`];
+                showToast('Failed to add experience', errorMessages.join(' '), 'error');
+            }
+        } catch (error) {
+            console.error('Error adding experience:', error);
+            showToast('Failed to add experience', 'Unable to connect to server. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (experienceForm) {
+        experienceForm.addEventListener('submit', addExperience);
+    }
+
+    fetchExperience(searchInput ? searchInput.value.trim() : "");
+</script>
 {% endblock content %}

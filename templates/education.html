@@ -12,54 +12,247 @@
             <div class="project-header">
                 <h2 class="section-title">Education</h2>
                 {% if user.is_superuser %}
-                <a href="{% url 'main:create_education' %}"
-                   class="button project-add-button">
+                <button type="button"
+                        class="button project-add-button"
+                        popovertarget="add-education-modal">
                     <span aria-hidden="true">+</span>
                     Add Education
-                </a>
+                </button>
                 {% endif %}
             </div>
-            <div class="education-timeline">
-                {% for edu in education_list %}
-                    <article class="education-timeline-item">
-                        <div class="education-timeline-node">
-                            <div class="education-logo-box">
-                                {% if edu.logo_url %}
-                                    <img src="{{ edu.logo_url }}" alt="{{ edu.institution }}" class="education-logo-img">
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="education-timeline-content">
-                            <span class="education-degree">{{ edu.degree }}</span>
-                            <h3 class="education-institution">{{ edu.institution }}</h3>
-                            <p class="education-field">{{ edu.field_of_study|default:"-" }}</p>
-                            <p class="education-status">
-                                {% if edu.is_ongoing %}
-                                    Sedang berlangsung
-                                {% else %}
-                                    Selesai
-                                {% endif %}
-                            </p>
-                            {% if edu.description %}
-                                <p class="education-description">{{ edu.description }}</p>
-                            {% endif %}
-                            <div class="education-actions">
-                                {% if user.is_superuser or is_editor %}
-                                    <a href="{% url 'main:edit_education' edu.id %}" class="education-btn-edit">Edit</a>
-                                {% endif %}
-                                {% if user.is_superuser %}
-                                    {% include "components/education_delete_modal.html" with edu=edu %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </article>
-                {% empty %}
-                    <p class="empty-state">
-                        No education history has been added yet.
-                    </p>
-                {% endfor %}
+
+            <form id="education-search-form" class="project-search">
+                <input type="search"
+                       id="search-input"
+                       name="institution"
+                       value="{{ institution_query }}"
+                       placeholder="Search by institution or degree"
+                       class="project-search__input"
+                       aria-label="Search by institution or degree">
+            </form>
+
+            <div id="loading" class="empty-state hide">
+                <p>Loading education history...</p>
             </div>
+
+            <div id="error" class="empty-state hide">
+                <p>Failed to load education data. Please try again.</p>
+            </div>
+
+            <div id="empty" class="empty-state hide">
+                <p>No education history added or found yet.</p>
+            </div>
+
+            <div id="education-timeline" class="education-timeline hide"></div>
         </div>
     </section>
 </main>
+
+{% if user.is_superuser %}
+    {% include "components/education_form_modal.html" %}
+{% endif %}
+
+<script>
+    const BASE_EDUCATION_ENDPOINT = "{% url 'main:get_education_json' %}";
+    const CREATE_EDUCATION_ENDPOINT = "{% url 'main:create_education_ajax' %}";
+    const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+    const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+    let educationAbortController;
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    let searchDebounceTimer;
+
+    const loadingState = document.getElementById('loading');
+    const errorState = document.getElementById('error');
+    const emptyState = document.getElementById('empty');
+    const timelineContainer = document.getElementById('education-timeline');
+    const searchForm = document.getElementById('education-search-form');
+    const searchInput = document.getElementById('search-input');
+    const educationForm = document.getElementById('education-form');
+
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showTimeline = false }) {
+        loadingState.classList.toggle('hide', !showLoading);
+        errorState.classList.toggle('hide', !showError);
+        emptyState.classList.toggle('hide', !showEmpty);
+        timelineContainer.classList.toggle('hide', !showTimeline);
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function buildEducationCardElement(item) {
+        const edu = item.fields;
+        const eduId = item.pk;
+
+        const articleElement = document.createElement('article');
+        articleElement.className = 'education-timeline-item';
+
+        const logoHtml = edu.logo_url
+            ? `<img src="${escapeHtml(edu.logo_url)}" alt="${escapeHtml(edu.institution)}" class="education-logo-img">`
+            : '';
+
+        const statusText = edu.is_ongoing ? 'Sedang berlangsung' : 'Selesai';
+        const fieldOfStudy = edu.field_of_study ? escapeHtml(edu.field_of_study) : '-';
+        const descriptionHtml = edu.description
+            ? `<p class="education-description">${escapeHtml(edu.description)}</p>`
+            : '';
+
+        const editUrl = "{% url 'main:edit_education' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', eduId);
+        const deleteUrl = "{% url 'main:delete_education' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', eduId);
+
+        const editHtml = (IS_SUPERUSER || IS_EDITOR)
+            ? `<a href="${editUrl}" class="education-btn-edit">Edit</a>`
+            : '';
+
+        const deleteHtml = IS_SUPERUSER
+            ? `<form method="post" action="${deleteUrl}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger" onclick="return confirm('Are you sure you want to delete this education entry?');">Delete</button>
+               </form>`
+            : '';
+
+        articleElement.innerHTML = `
+            <div class="education-timeline-node">
+                <div class="education-logo-box">
+                    ${logoHtml}
+                </div>
+            </div>
+            <div class="education-timeline-content">
+                <span class="education-degree">${escapeHtml(edu.degree)}</span>
+                <h3 class="education-institution">${escapeHtml(edu.institution)}</h3>
+                <p class="education-field">${fieldOfStudy}</p>
+                <p class="education-status">${statusText}</p>
+                ${descriptionHtml}
+                <div class="education-actions">
+                    ${editHtml}
+                    ${deleteHtml}
+                </div>
+            </div>
+        `;
+        return articleElement;
+    }
+
+    async function fetchEducation(searchQuery = "") {
+        if (educationAbortController) educationAbortController.abort();
+        educationAbortController = new AbortController();
+
+        try {
+            displayPageSection({ showLoading: true });
+
+            const url = searchQuery
+                ? `${BASE_EDUCATION_ENDPOINT}?institution=${encodeURIComponent(searchQuery)}`
+                : BASE_EDUCATION_ENDPOINT;
+
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' },
+                signal: educationAbortController.signal,
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const educationData = await response.json();
+
+            if (educationData.length === 0) {
+                displayPageSection({ showEmpty: true });
+            } else {
+                timelineContainer.innerHTML = '';
+                educationData.forEach(item => {
+                    timelineContainer.appendChild(buildEducationCardElement(item));
+                });
+                displayPageSection({ showTimeline: true });
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error('Error loading education:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    function searchEducation() {
+        fetchEducation(searchInput.value.trim());
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(function() {
+                searchEducation();
+            }, SEARCH_DEBOUNCE_DELAY);
+        });
+    }
+
+    if (searchForm) {
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            clearTimeout(searchDebounceTimer);
+            searchEducation();
+        });
+    }
+
+    function closeEducationModal() {
+        const modal = document.getElementById("add-education-modal");
+        if (modal) modal.hidePopover();
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async function addEducation(event) {
+        event.preventDefault();
+        const submitButton = educationForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_EDUCATION_ENDPOINT, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(educationForm),
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                educationForm.reset();
+                closeEducationModal();
+                showToast('Success', 'New education entry added successfully!', 'success');
+                fetchEducation(searchInput ? searchInput.value.trim() : "");
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `An error occurred (status ${response.status}).`];
+                showToast('Failed to add education', errorMessages.join(' '), 'error');
+            }
+        } catch (error) {
+            console.error('Error adding education:', error);
+            showToast('Failed to add education', 'Unable to connect to server. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (educationForm) {
+        educationForm.addEventListener('submit', addEducation);
+    }
+
+    fetchEducation(searchInput ? searchInput.value.trim() : "");
+</script>
 {% endblock content %}
