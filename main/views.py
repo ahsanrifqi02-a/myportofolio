@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login, logout
@@ -54,12 +55,34 @@ def show_main(request):
 
 
 def get_education_json(request):
-    institution_query = request.GET.get("institution", "").strip()
+    query = (
+        request.GET.get("institution", "")
+        or request.GET.get("search", "")
+        or request.GET.get("q", "")
+    ).strip()
     education_list = Education.objects.all()
-    if institution_query:
-        education_list = education_list.filter(institution__icontains=institution_query)
-    education_json = serializers.serialize("json", education_list, use_natural_foreign_keys=True)
-    return HttpResponse(education_json, content_type="application/json")
+    if query:
+        education_list = education_list.filter(
+            models.Q(institution__icontains=query) |
+            models.Q(degree__icontains=query) |
+            models.Q(field_of_study__icontains=query)
+        )
+    data = []
+    for edu in education_list:
+        data.append({
+            "pk": str(edu.id),
+            "fields": {
+                "institution": edu.institution,
+                "degree": edu.degree,
+                "field_of_study": edu.field_of_study,
+                "start_year": edu.start_year,
+                "end_year": edu.end_year,
+                "is_ongoing": edu.is_ongoing,
+                "description": edu.description,
+                "logo_url": edu.logo_url,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 
 def get_experience_json(request):
@@ -72,18 +95,14 @@ def get_experience_json(request):
 
 
 def show_education(request):
-    json_response = get_education_json(request)
-    education_items = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    education_list = [item.object for item in education_items]
+    institution_query = request.GET.get("institution", "").strip()
     is_editor = request.user.is_authenticated and request.user.groups.filter(name="Editor").exists()
 
     context = {
         "name": "Ahsan",
         "fullname": "Ahsan Rifqi Prasetyo",
-        "education_list": education_list,
+        "institution_query": institution_query,
+        "form": EducationForm(),
         "is_editor": is_editor,
     }
     return render(request, "education.html", context)
@@ -279,13 +298,17 @@ def delete_education(request, education_id):
     
     education = get_object_or_404(Education, pk=education_id)
     if request.method == "POST":
-        if check_secret_code(request, post_key="password"):
-            education.delete()
-            messages.success(request, "Education entry deleted successfully!")
-            return redirect("main:show_education")
-        else:
-            messages.error(request, "Incorrect secret code! Education entry could not be deleted.")
-            return redirect("main:show_education")
+        if "password" in request.POST:
+            if not check_secret_code(request, post_key="password"):
+                messages.error(request, "Incorrect secret code! Education entry could not be deleted.")
+                return redirect("main:show_education")
+        elif request.headers.get("X-Secret-Code") or request.headers.get("X-Secret-Key") or request.headers.get("X-Kode-Rahasia"):
+            if not check_secret_code(request, post_key=None):
+                messages.error(request, "Incorrect secret code! Education entry could not be deleted.")
+                return redirect("main:show_education")
+        education.delete()
+        messages.success(request, "Education entry deleted successfully!")
+        return redirect("main:show_education")
     return redirect("main:show_education")
 
 @login_required(login_url="/login/")
