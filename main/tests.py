@@ -82,14 +82,13 @@ class MainTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experience.html")
-        self.assertContains(response, self.experience.title)
-        self.assertContains(response, self.experience.description)
-        self.assertContains(response, "Part-Time")
-        self.assertContains(response, "Sedang berlangsung")
-        self.assertContains(response, f'href="{reverse("main:show_main")}"')
-        self.assertContains(response, f'href="{reverse("main:create_experience")}"')
+        self.assertContains(response, 'popovertarget="add-experience-modal"')
         self.assertContains(response, "Add Experience")
-        self.assertContains(response, f'popovertarget="delete-experience-{self.experience.id}"')
+        self.assertContains(response, 'id="experience-list"')
+        self.assertContains(response, 'id="experience-search-form"')
+        self.assertContains(response, 'id="loading"')
+        self.assertContains(response, 'id="empty"')
+        self.assertContains(response, 'id="error"')
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
@@ -100,11 +99,7 @@ class MainTest(TestCase):
     def test_completed_experience(self):
         self.experience.ended_at = timezone.now()
         self.experience.save()
-        response = self.client.get(reverse("main:show_experience"))
-    
         self.assertFalse(self.experience.is_ongoing)
-        self.assertContains(response, "Selesai")
-        self.assertNotContains(response, "Sedang berlangsung")
 
     def test_skill_model(self):
         self.assertEqual(str(self.skill), "Programming Languages")
@@ -153,25 +148,23 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "education.html")
-        self.assertContains(response, f'href="{reverse("main:create_education")}"')
+        self.assertContains(response, 'popovertarget="add-education-modal"')
         self.assertContains(response, "Add Education")
 
     def test_education_data_appears_on_page(self):
         self.client.force_login(self.superuser)
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.education.institution)
-        self.assertContains(response, self.education.degree)
-        self.assertContains(response, self.education.field_of_study)
-        self.assertContains(response, f'popovertarget="delete-education-{self.education.id}"')
-        self.assertContains(response, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
-        self.assertContains(response, "Delete")
+        self.assertContains(response, 'id="education-timeline"')
+        self.assertContains(response, 'id="education-search-form"')
+        self.assertContains(response, 'id="loading"')
+        self.assertContains(response, 'id="empty"')
+        self.assertContains(response, 'id="error"')
 
     def test_empty_education_page(self):
-        Education.objects.all().delete()
         response = self.client.get(reverse("main:show_education"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No education history has been added yet.")
+        self.assertContains(response, "No education history added or found yet.")
 
     @override_settings(SECRET_CODE="test-secret-123")
     def test_education_form_fields_and_validation(self):
@@ -900,36 +893,39 @@ class MainTest(TestCase):
 
     def test_education_page_ui_superuser_vs_regular_user(self):
         res_anon = self.client.get(reverse("main:show_education"))
-        self.assertNotContains(res_anon, "Add Education")
-        self.assertNotContains(res_anon, f"delete-education-{self.education.id}")
-        self.assertNotContains(res_anon, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+        self.assertNotContains(res_anon, 'popovertarget="add-education-modal"')
+        self.assertNotContains(res_anon, 'id="add-education-modal"')
+        self.assertContains(res_anon, 'id="education-timeline"')
 
         self.client.force_login(self.regular_user)
         res_user = self.client.get(reverse("main:show_education"))
-        self.assertNotContains(res_user, "Add Education")
-        self.assertNotContains(res_user, f"delete-education-{self.education.id}")
-        self.assertNotContains(res_user, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+        self.assertNotContains(res_user, 'popovertarget="add-education-modal"')
+        self.assertNotContains(res_user, 'id="add-education-modal"')
+        self.assertContains(res_user, 'id="education-timeline"')
 
         self.client.force_login(self.superuser)
         res_admin = self.client.get(reverse("main:show_education"))
-        self.assertContains(res_admin, "Add Education")
-        self.assertContains(res_admin, f"delete-education-{self.education.id}")
-        self.assertContains(res_admin, f'href="{reverse("main:edit_education", kwargs={"education_id": self.education.id})}"')
+        self.assertContains(res_admin, 'popovertarget="add-education-modal"')
+        self.assertContains(res_admin, 'id="add-education-modal"')
+        self.assertContains(res_admin, 'id="education-timeline"')
 
     def test_experience_page_ui_superuser_vs_regular_user(self):
         res_anon = self.client.get(reverse("main:show_experience"))
-        self.assertNotContains(res_anon, "Add Experience")
-        self.assertNotContains(res_anon, f"delete-experience-{self.experience.id}")
+        self.assertNotContains(res_anon, 'popovertarget="add-experience-modal"')
+        self.assertNotContains(res_anon, 'id="add-experience-modal"')
+        self.assertContains(res_anon, 'id="experience-list"')
 
         self.client.force_login(self.regular_user)
         res_user = self.client.get(reverse("main:show_experience"))
-        self.assertNotContains(res_user, "Add Experience")
-        self.assertNotContains(res_user, f"delete-experience-{self.experience.id}")
+        self.assertNotContains(res_user, 'popovertarget="add-experience-modal"')
+        self.assertNotContains(res_user, 'id="add-experience-modal"')
+        self.assertContains(res_user, 'id="experience-list"')
 
         self.client.force_login(self.superuser)
         res_admin = self.client.get(reverse("main:show_experience"))
-        self.assertContains(res_admin, "Add Experience")
-        self.assertContains(res_admin, f"delete-experience-{self.experience.id}")
+        self.assertContains(res_admin, 'popovertarget="add-experience-modal"')
+        self.assertContains(res_admin, 'id="add-experience-modal"')
+        self.assertContains(res_admin, 'id="experience-list"')
 
     # Assignment 4 Tests: 4-Role Authorization on Tugas 3 (Education & Experience)
     def test_unauthenticated_cannot_create_or_edit_or_delete_education(self):
@@ -1018,13 +1014,145 @@ class MainTest(TestCase):
         res = self.client.get(reverse("main:show_education"))
         self.assertEqual(res.status_code, 200)
 
-        # Editor can see Edit button
-        edit_url = reverse("main:edit_education", kwargs={"education_id": self.education.id})
-        self.assertContains(res, f'href="{edit_url}"')
+        # Editor CANNOT see Add Education modal or button
+        self.assertNotContains(res, 'popovertarget="add-education-modal"')
+        self.assertNotContains(res, 'id="add-education-modal"')
+        self.assertContains(res, 'id="education-timeline"')
 
-        # Editor CANNOT see Add Education or Delete
-        self.assertNotContains(res, "Add Education")
-        self.assertNotContains(res, f"delete-education-{self.education.id}")
+    # Assignment 5 Tests: AJAX, Modals, and Security for Education & Experience
+    def test_create_education_ajax_superuser_success(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "institution": "Harvard University",
+            "degree": "Master of Science",
+            "field_of_study": "Computer Science",
+            "start_year": 2024,
+            "end_year": 2026,
+            "description": "Graduate studies in software and systems.",
+            "logo_url": "https://example.com/harvard.png",
+        }
+        response = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        self.assertEqual(response_json["message"], "Riwayat pendidikan berhasil ditambahkan.")
+        self.assertTrue(Education.objects.filter(id=response_json["pk"]).exists())
+
+    def test_create_education_ajax_forbidden_non_superuser(self):
+        data = {
+            "institution": "MIT",
+            "degree": "Bachelor",
+            "start_year": 2024,
+        }
+        res_anon = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(res_anon.status_code, 403)
+
+        self.client.force_login(self.regular_user)
+        res_user = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(res_user.status_code, 403)
+
+        self.client.force_login(self.editor_user)
+        res_editor = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(res_editor.status_code, 403)
+
+    def test_create_education_ajax_validation_error(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "institution": "",
+            "degree": "",
+            "start_year": "invalid-year",
+        }
+        response = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("errors", response.json())
+
+    def test_create_education_ajax_xss_protection(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "institution": "<img src=\"x\" onerror=\"alert('XSS!')\">",
+            "degree": "S1",
+            "start_year": 2024,
+        }
+        response = self.client.post(reverse("main:create_education_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("institution", response.json()["errors"])
+
+        data_clean = {
+            "institution": "Universitas Indonesia",
+            "degree": "Sarjana <b>S1</b>",
+            "field_of_study": "Sistem Informasi <i>UI</i>",
+            "description": "Fokus pada <strong>Software Engineering</strong>",
+            "start_year": 2024,
+        }
+        response_clean = self.client.post(reverse("main:create_education_ajax"), data=data_clean)
+        self.assertEqual(response_clean.status_code, 201)
+        created_edu = Education.objects.get(id=response_clean.json()["pk"])
+        self.assertEqual(created_edu.degree, "Sarjana S1")
+        self.assertEqual(created_edu.field_of_study, "Sistem Informasi UI")
+        self.assertEqual(created_edu.description, "Fokus pada Software Engineering")
+
+    def test_create_experience_ajax_superuser_success(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "Software Engineer Intern",
+            "category": "internship",
+            "description": "Building backend web services.",
+            "started_at": "2026-06-01",
+            "ended_at": "2026-08-31",
+        }
+        response = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(response.status_code, 201)
+        response_json = response.json()
+        self.assertEqual(response_json["message"], "Pengalaman berhasil ditambahkan.")
+        self.assertTrue(Experience.objects.filter(id=response_json["pk"]).exists())
+
+    def test_create_experience_ajax_forbidden_non_superuser(self):
+        data = {
+            "title": "Unauthorized Role",
+            "category": "full-time",
+            "description": "Should fail",
+        }
+        res_anon = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(res_anon.status_code, 403)
+
+        self.client.force_login(self.regular_user)
+        res_user = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(res_user.status_code, 403)
+
+        self.client.force_login(self.editor_user)
+        res_editor = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(res_editor.status_code, 403)
+
+    def test_create_experience_ajax_validation_error(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "",
+            "category": "invalid-category",
+        }
+        response = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("errors", response.json())
+
+    def test_create_experience_ajax_xss_protection(self):
+        self.client.force_login(self.superuser)
+        data = {
+            "title": "<img src=\"x\" onerror=\"alert('XSS!')\">",
+            "category": "full-time",
+            "description": "Testing XSS",
+        }
+        response = self.client.post(reverse("main:create_experience_ajax"), data=data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("title", response.json()["errors"])
+
+        data_clean = {
+            "title": "Backend <b>Developer</b>",
+            "category": "part-time",
+            "description": "API design with <strong>Django REST</strong>",
+        }
+        response_clean = self.client.post(reverse("main:create_experience_ajax"), data=data_clean)
+        self.assertEqual(response_clean.status_code, 201)
+        created_exp = Experience.objects.get(id=response_clean.json()["pk"])
+        self.assertEqual(created_exp.title, "Backend Developer")
+        self.assertEqual(created_exp.description, "API design with Django REST")
 
 
 
