@@ -305,3 +305,12 @@ class ExperienceForm(ModelForm):
             elif not secret_code or password != secret_code:
                 self.add_error("password", "Incorrect secret code! Access denied.")
         return cleaned_data
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Judul posisi pengalaman tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data.get("description", "")).strip()

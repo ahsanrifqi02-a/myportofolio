@@ -86,12 +86,33 @@ def get_education_json(request):
 
 
 def get_experience_json(request):
-    title_query = request.GET.get("title", "").strip()
+    query = (
+        request.GET.get("title", "")
+        or request.GET.get("search", "")
+        or request.GET.get("q", "")
+    ).strip()
     experience_list = Experience.objects.all()
-    if title_query:
-        experience_list = experience_list.filter(title__icontains=title_query)
-    experience_json = serializers.serialize("json", experience_list, use_natural_foreign_keys=True)
-    return HttpResponse(experience_json, content_type="application/json")
+    if query:
+        experience_list = experience_list.filter(
+            models.Q(title__icontains=query) |
+            models.Q(description__icontains=query) |
+            models.Q(category__icontains=query)
+        )
+    data = []
+    for exp in experience_list:
+        data.append({
+            "pk": str(exp.id),
+            "fields": {
+                "title": exp.title,
+                "category": exp.category,
+                "category_display": exp.get_category_display(),
+                "description": exp.description,
+                "started_at": exp.started_at.strftime("%Y-%m-%d") if exp.started_at else None,
+                "ended_at": exp.ended_at.strftime("%Y-%m-%d") if exp.ended_at else None,
+                "is_ongoing": exp.is_ongoing,
+            }
+        })
+    return JsonResponse(data, safe=False)
 
 
 def show_education(request):
@@ -109,9 +130,11 @@ def show_education(request):
 
 
 def show_experience(request):
+    title_query = request.GET.get("title", "").strip()
     context = {
         "name": "Ahsan",
-        "experience_list": Experience.objects.all(),
+        "title_query": title_query,
+        "form": ExperienceForm(),
     }
     return render(request, "experience.html", context)
 
@@ -317,13 +340,17 @@ def delete_experience(request, experience_id):
         raise PermissionDenied
     experience = get_object_or_404(Experience, pk=experience_id)
     if request.method == "POST":
-        if check_secret_code(request, post_key="password"):
-            experience.delete()
-            messages.success(request, "Experience entry deleted successfully!")
-            return redirect("main:show_experience")
-        else:
-            messages.error(request, "Incorrect secret code! Experience entry could not be deleted.")
-            return redirect("main:show_experience")
+        if "password" in request.POST:
+            if not check_secret_code(request, post_key="password"):
+                messages.error(request, "Incorrect secret code! Experience entry could not be deleted.")
+                return redirect("main:show_experience")
+        elif request.headers.get("X-Secret-Code") or request.headers.get("X-Secret-Key") or request.headers.get("X-Kode-Rahasia"):
+            if not check_secret_code(request, post_key=None):
+                messages.error(request, "Incorrect secret code! Experience entry could not be deleted.")
+                return redirect("main:show_experience")
+        experience.delete()
+        messages.success(request, "Experience entry deleted successfully!")
+        return redirect("main:show_experience")
     return redirect("main:show_experience")
 
 def register(request):
@@ -390,4 +417,22 @@ def create_education_ajax(request):
             {"message": "Riwayat pendidikan berhasil ditambahkan.", "pk": str(education.id)},
             status=201,
         )
-    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan pengalaman."},
+            status=403,
+        )
+    form = ExperienceForm(request.POST, is_header_authorized=True)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {"message": "Pengalaman berhasil ditambahkan.", "pk": str(experience.id)},
+            status=201,
+        )
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
