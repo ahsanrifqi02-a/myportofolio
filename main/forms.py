@@ -205,6 +205,24 @@ class EducationForm(ModelForm):
                 self.add_error("password", "Incorrect secret code! Access denied.")
         return cleaned_data
 
+    def clean_institution(self):
+        institution = strip_tags(self.cleaned_data["institution"]).strip()
+        if not institution:
+            raise ValidationError("Nama institusi tidak boleh hanya berisi tag HTML.")
+        return institution
+
+    def clean_degree(self):
+        degree = strip_tags(self.cleaned_data["degree"]).strip()
+        if not degree:
+            raise ValidationError("Gelar/jenjang pendidikan tidak boleh hanya berisi tag HTML.")
+        return degree
+
+    def clean_field_of_study(self):
+        return strip_tags(self.cleaned_data.get("field_of_study", "")).strip()
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data.get("description", "")).strip()
+
 
 class ExperienceForm(ModelForm):
     password = forms.CharField(
