@@ -8,12 +8,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from main.forms import ProjectForm, EducationForm, ExperienceForm
 from main.models import Experience, Skill, Project, Education
 
 import datetime
+
 
 def check_secret_code(request, post_key="password"):
     secret_code = getattr(settings, "SECRET_CODE", "")
@@ -30,13 +32,15 @@ def check_secret_code(request, post_key="password"):
         return True
     return False
 
+
 # Fungsi agar tidak perlu mengulang syntax yang panjang
 def is_editor_or_superuser(user):
     return user.is_authenticated and (user.is_superuser or user.groups.filter(name="Editor").exists())
 
+
 def show_main(request):
     last_login = request.COOKIES.get(
-        'last_login', 
+        'last_login',
         'No login session yet / Cookie not found'
     )
 
@@ -60,7 +64,7 @@ def get_education_json(request):
         or request.GET.get("search", "")
         or request.GET.get("q", "")
     ).strip()
-    education_list = Education.objects.all()
+    education_list = Education.objects.prefetch_related("starred_by").all()
     if query:
         education_list = education_list.filter(
             models.Q(institution__icontains=query) |
@@ -69,6 +73,9 @@ def get_education_json(request):
         )
     data = []
     for edu in education_list:
+        starred_users = edu.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
         data.append({
             "pk": str(edu.id),
             "fields": {
@@ -80,6 +87,9 @@ def get_education_json(request):
                 "is_ongoing": edu.is_ongoing,
                 "description": edu.description,
                 "logo_url": edu.logo_url,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
             }
         })
     return JsonResponse(data, safe=False)
@@ -91,7 +101,7 @@ def get_experience_json(request):
         or request.GET.get("search", "")
         or request.GET.get("q", "")
     ).strip()
-    experience_list = Experience.objects.all()
+    experience_list = Experience.objects.prefetch_related("starred_by").all()
     if query:
         experience_list = experience_list.filter(
             models.Q(title__icontains=query) |
@@ -100,6 +110,9 @@ def get_experience_json(request):
         )
     data = []
     for exp in experience_list:
+        starred_users = exp.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
         data.append({
             "pk": str(exp.id),
             "fields": {
@@ -110,11 +123,15 @@ def get_experience_json(request):
                 "started_at": exp.started_at.strftime("%Y-%m-%d") if exp.started_at else None,
                 "ended_at": exp.ended_at.strftime("%Y-%m-%d") if exp.ended_at else None,
                 "is_ongoing": exp.is_ongoing,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
             }
         })
     return JsonResponse(data, safe=False)
 
 
+@ensure_csrf_cookie
 def show_education(request):
     institution_query = request.GET.get("institution", "").strip()
     is_editor = request.user.is_authenticated and request.user.groups.filter(name="Editor").exists()
@@ -129,12 +146,15 @@ def show_education(request):
     return render(request, "education.html", context)
 
 
+@ensure_csrf_cookie
 def show_experience(request):
     title_query = request.GET.get("title", "").strip()
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name="Editor").exists()
     context = {
         "name": "Ahsan",
         "title_query": title_query,
         "form": ExperienceForm(),
+        "is_editor": is_editor,
     }
     return render(request, "experience.html", context)
 
@@ -174,6 +194,8 @@ def get_projects_json(request):
         })
     return JsonResponse(data, safe=False)
 
+
+@ensure_csrf_cookie
 def show_projects(request):
     title_query = request.GET.get("title", "").strip()
     is_editor = request.user.is_authenticated and request.user.groups.filter(name="Editor").exists()
@@ -184,6 +206,7 @@ def show_projects(request):
         "is_editor": is_editor,
     }
     return render(request, "project.html", context)
+
 
 @login_required(login_url="/login/")
 def create_project(request):
@@ -202,6 +225,7 @@ def create_project(request):
         "form": form,
     }
     return render(request, "projects_form.html", context)
+
 
 @login_required(login_url="/login/")
 def edit_project(request, project_id):
@@ -224,6 +248,7 @@ def edit_project(request, project_id):
         "is_edit": True,
     }
     return render(request, "projects_form.html", context)
+
 
 @login_required(login_url="/login/")
 def delete_project(request, project_id):
@@ -255,8 +280,9 @@ def toggle_star(request, project_id):
             project.starred_by.add(request.user)
     return redirect("main:show_projects")
 
+
 @login_required(login_url="/login/")
-def create_education(request): 
+def create_education(request):
     if not request.user.is_superuser:
         raise PermissionDenied
     is_auth = check_secret_code(request, post_key=None)
@@ -272,6 +298,7 @@ def create_education(request):
         "form": form,
     }
     return render(request, "education_form.html", context)
+
 
 @login_required(login_url="/login/")
 def edit_education(request, education_id):
@@ -295,11 +322,12 @@ def edit_education(request, education_id):
     }
     return render(request, "education_form.html", context)
 
+
 @login_required(login_url="/login/")
 def create_experience(request):
     if not request.user.is_superuser:
         raise PermissionDenied
-    
+
     is_auth = check_secret_code(request, post_key=None)
     form = ExperienceForm(request.POST or None, is_header_authorized=is_auth)
 
@@ -314,11 +342,12 @@ def create_experience(request):
     }
     return render(request, "experience_form.html", context)
 
+
 @login_required(login_url="/login/")
 def delete_education(request, education_id):
     if not request.user.is_superuser:
         raise PermissionDenied
-    
+
     education = get_object_or_404(Education, pk=education_id)
     if request.method == "POST":
         if "password" in request.POST:
@@ -333,6 +362,7 @@ def delete_education(request, education_id):
         messages.success(request, "Education entry deleted successfully!")
         return redirect("main:show_education")
     return redirect("main:show_education")
+
 
 @login_required(login_url="/login/")
 def delete_experience(request, experience_id):
@@ -353,6 +383,7 @@ def delete_experience(request, experience_id):
         return redirect("main:show_experience")
     return redirect("main:show_experience")
 
+
 def register(request):
     form = UserCreationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -360,10 +391,11 @@ def register(request):
         messages.success(request, "Account has been created. Please login")
         return redirect("main:login")
     context = {
-        "name" : "Ahsan",
-        "form" : form,
+        "name": "Ahsan",
+        "form": form,
     }
     return render(request, "register.html", context)
+
 
 def login_user(request):
     form = AuthenticationForm(request, data=request.POST or None)
@@ -373,18 +405,20 @@ def login_user(request):
         response = redirect("main:show_main")
         response.set_cookie('last_login', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         return response
-    
+
     context = {
         "name": "Ahsan",
         "form": form,
     }
     return render(request, "login.html", context)
 
+
 def logout_user(request):
     logout(request)
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
 
 @require_POST
 def create_project_ajax(request):
@@ -435,4 +469,3 @@ def create_experience_ajax(request):
             status=201,
         )
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
-

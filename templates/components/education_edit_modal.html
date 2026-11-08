@@ -1,0 +1,89 @@
+<div id="edit-education-modal"
+     class="project-form-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="edit-education-modal-title">
+    <button type="button"
+            class="project-form-modal__backdrop"
+            popovertarget="edit-education-modal"
+            popovertargetaction="hide"
+            aria-label="Tutup form ubah pendidikan"></button>
+    <div class="project-form-modal__content">
+        <button type="button"
+                class="project-form-modal__close"
+                popovertarget="edit-education-modal"
+                popovertargetaction="hide"
+                aria-label="Tutup form ubah pendidikan">×</button>
+        <h2 id="edit-education-modal-title">Ubah Riwayat Pendidikan</h2>
+        <form id="edit-education-form" class="project-form">
+            <input type="hidden" name="id" id="edit-edu-id">
+            <div class="form-group">
+                <label for="edit-edu-institution">Institution / School</label>
+                <input type="text"
+                       name="institution"
+                       id="edit-edu-institution"
+                       maxlength="255"
+                       required
+                       placeholder="Universitas Indonesia">
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-degree">Degree / Level</label>
+                <input type="text"
+                       name="degree"
+                       id="edit-edu-degree"
+                       maxlength="100"
+                       required
+                       placeholder="Undergraduate Student / S1">
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-field_of_study">Field of Study / Major</label>
+                <input type="text"
+                       name="field_of_study"
+                       id="edit-edu-field_of_study"
+                       maxlength="255"
+                       placeholder="Information System">
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-start_year">Start Year</label>
+                <input type="number"
+                       name="start_year"
+                       id="edit-edu-start_year"
+                       min="1900"
+                       max="2100"
+                       required
+                       placeholder="2024">
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-end_year">End Year</label>
+                <input type="number"
+                       name="end_year"
+                       id="edit-edu-end_year"
+                       min="1900"
+                       max="2100"
+                       placeholder="2028 (Leave empty if ongoing)">
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-description">Description / Activities</label>
+                <textarea name="description"
+                          id="edit-edu-description"
+                          rows="3"
+                          placeholder="Describe your academic focus, activities, or achievements..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="edit-edu-logo_url">Logo / Image URL</label>
+                <input type="url"
+                       name="logo_url"
+                       id="edit-edu-logo_url"
+                       placeholder="https://example.com/logo.png (optional)">
+            </div>
+            <div class="project-form-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="edit-education-modal"
+                        popovertargetaction="hide">Batal</button>
+                <button type="submit" class="button">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
