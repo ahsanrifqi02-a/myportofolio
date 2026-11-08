@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
         ('internship', 'Internship'),
@@ -12,16 +13,20 @@ class Experience(models.Model):
         ('full-time', 'Full-Time'),
         ('freelance', 'Freelance'),
     ]
-    
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
     started_at = models.DateField(blank=True, null=True)
     ended_at = models.DateField(blank=True, null=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_experiences", blank=True
+    )
+
     def __str__(self):
         return self.title
-    
+
     @property
     def is_ongoing(self):
         return self.ended_at is None
@@ -72,6 +77,9 @@ class Education(models.Model):
     end_year = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True)
     logo_url = models.URLField(blank=True, null=True, max_length=500)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_educations", blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -84,4 +92,3 @@ class Education(models.Model):
     @property
     def is_ongoing(self):
         return self.end_year is None
-
